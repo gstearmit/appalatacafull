@@ -1,0 +1,174 @@
+﻿<html>
+<head>
+	<title>Map Views</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css"	rel="stylesheet" />	
+	
+	<!-- Wikilookup references -->
+	<script src="https://maps.googleapis.com/maps/api/js?sensor=false&language=vi&libraries=places"></script>
+	
+	<script>
+		var map, placesList, service, infoWindow;
+		var lat, lon, key;
+		function initialize() {
+			// Lấy dữ liệu transfer
+				// Lấy dữ liệu kinh, vĩ độ, khóa kiếm --------------------------- \\
+			var z = location.toString().indexOf('#');
+			var mySearch = location.toString().substr(z+1);
+			var x = mySearch.toString().indexOf('@');
+			var y = mySearch.toString().indexOf('$');
+
+			// Khởi tạo các đối tượng
+			lat = mySearch.toString().substr(0, x);
+			lon = mySearch.toString().substr(x + 1, y - x - 1);
+			key = mySearch.toString().substr(y + 1);
+			// -------------------------------------------------------------- \\
+			
+			
+			// Vị trí hiển thị khi bản đồ hiển thị lần đầu tiên
+			var pyrmont = new google.maps.LatLng(lat, lon);
+			// Khởi tạo bản đồ
+			map = new google.maps.Map(document.getElementById('map_canvas'), {
+				mapTypeId : google.maps.MapTypeId.ROADMAP,
+				center : pyrmont,
+				zoom : 15
+			});
+
+			var place_type = document.getElementById('place_type');
+
+			var request = {
+					location: pyrmont,
+					radius: 5000,
+					types: [key] 
+			}; 
+			
+			// Hiển thị thông tin về địa điểm
+			infowindow = new google.maps.InfoWindow();
+			service = new google.maps.places.PlacesService(map);
+			
+			// Thực hiện gọi hàm nearbySearch để tìm những atm lân cận và trả về thực hiện hàm callback
+			service.nearbySearch(request, callback);
+		}
+
+		
+		function callback(results, status) {
+			if (status == google.maps.places.PlacesServiceStatus.OK) {
+				for (var i = 0, result; result = results[i]; i++) {createMarker(result);}
+			}
+			
+			
+			var listView = document.getElementById('list_view');
+			var length = results.length;
+			var current = 0;
+			
+			nIntervId = setInterval(doAction, 600);
+				
+			function doAction(){
+				if(current == length){
+					clearInterval(nIntervId);	
+					return;
+				}
+				
+				service.getDetails(results[current], function (place, status) {
+                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+						listView.innerHTML +="<li style='margin-left:-30px; height:22px;' data-corners='false' data-shadow='false' data-iconshadow='true' data-wrapperels='div' data-icon='arrow-r' data-iconpos='right' data-theme='c' class='ui-btn ui-btn-icon-right ui-li-has-arrow ui-li ui-btn-up-c ui-li-static'><div class='ui-btn-inner ui-li ui-li-static ui-btn-up-c' style='border-style: none;'><div class='ui-btn-text'>"
+							+ "<a href='marked.html#"+place.geometry.location.lat()+"@"+place.geometry.location.lng()+"$"+place.reference+"'class='ui-link-inherit' style='height:12px; margin-top:-23px;margin-right:-25px;'>"
+							+ "<p class='ui-li-desc' style='margin-right:-50px;'><b>" + place.name + "</b><br>" + place.formatted_address + "</p></a></div><span class='ui-icon ui-icon-arrow-r ui-icon-shadow' style='margin-top:-15px;margin-right:-45px;'>&nbsp;</span></div></li>";						
+                    } 
+                });
+				current++;
+			}
+		}
+		
+		// Hàm đánh dấu lên bản đồ từ 1 đối tượng địa điểm place
+		function createMarker(place) {
+	        var marker = new google.maps.Marker({map: map, position: place.geometry.location});
+	
+	        google.maps.event.addListener(marker, 'click', function() {
+	        	service.getDetails(place, function(result, status) {
+	            	if (status == google.maps.places.PlacesServiceStatus.OK) {
+						var data = '<b>'+result.name+'</b><p>'+ result.formatted_address +'<p>';
+						infowindow.setContent(data);
+					    infowindow.open(map, marker);
+	            	}
+	          	});
+	        });
+      	}
+		
+		// Khởi tạo, kích hoạt Google Map API
+		google.maps.event.addDomListener(window, 'load', initialize);
+	</script>
+	
+	
+	 <style>
+		/* Google Map CSS */
+		html,body {height: 100%;margin: 0;padding: 0;}
+		#map_canvas {height: 100%;}
+		@media print {
+			html,body {height: auto;}
+			#map_canvas {height: 100%;}
+		}
+		/* Google Map CSS */
+
+		.ui-bar-f {
+			border: 1px solid #56A00E;
+			background: 			#74b042;
+			color: 					#fff;
+			font-weight: bold;
+			text-shadow: 0 1px 1px #335413;	
+			background-image: -webkit-gradient(linear, left top, left bottom, from(#74b042), to(#56A00E)); /* Saf4+, Chrome */
+			background-image: -webkit-linear-gradient(#74b042, #56A00E); /* Chrome 10+, Saf5.1+ */
+			background-image:    -moz-linear-gradient(#74b042, #56A00E); /* FF3.6 */
+			background-image:     -ms-linear-gradient(#74b042, #56A00E); /* IE10 */
+			background-image:      -o-linear-gradient(#74b042, #56A00E); /* Opera 11.10+ */
+			background-image:         linear-gradient(#74b042, #56A00E);		
+		}
+	</style>
+</head>
+<body>
+		<div data-role="header" data-theme="f" class="ntcHeader ui-header ui-bar-f ui-header-fixed slidedown" data-position="fixed" role="banner">
+        <h1 style="text-transform: capitalize;" class="ui-title" role="heading" aria-level="1"><b>TÌM NHANH</b></h1>
+        <a data-ajax="false" href="start.html" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left ui-btn ui-btn-up-f ui-shadow ui-btn-corner-all ui-btn-icon-notext" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="f" title="Home"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Home</span><span class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span></span></a>
+        <a data-ajax="false" href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup" class="ui-btn-right ui-btn ui-btn-up-f ui-shadow ui-btn-corner-all ui-btn-icon-notext" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="f" title="About"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">About</span><span class="ui-icon ui-icon-info ui-icon-shadow">&nbsp;</span></span></a>
+    </div>
+
+    <div id="maincontent" style="display:none;">
+		<div style="height:40px">&nbsp;</div>
+		<ul id="list_view" data-role='listview' data-inset='true' class='ui-listview ui-listview-inset ui-corner-all ui-shadow'></ul>
+		<div style="height:40px">&nbsp;</div>
+	</div>
+	
+    <div id="map_canvas"></div>
+	
+	 <div data-role="footer" data-id="foo1" data-position="fixed" class="ui-footer ui-bar-a ui-footer-fixed slideup" role="contentinfo">
+	<div data-role="navbar" class="ui-navbar ui-mini" role="navigation">
+		<ul class="ui-grid-a">
+			<li class="ui-block-a"><a id='hiendanhsach' onclick="hienDanhSach()"  data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-theme="a" data-inline="true" class="ui-btn ui-btn-up-a ui-btn-inline"><span class="ui-btn-inner"><span class="ui-btn-text">Danh sách</span></span></a></li>
+			<li class="ui-block-b"><a id='hienbando' onclick="hienBanDo()"  data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-theme="a" data-inline="true" class="ui-btn ui-btn-up-a ui-btn-inline ui-btn-active"><span class="ui-btn-inner"><span class="ui-btn-text">Bản đồ</span></span></a></li>
+		</ul>
+	</div><!-- /navbar -->
+</div>
+
+    <script type="text/javascript">
+        function hienDanhSach() {
+			document.getElementById("hiendanhsach").className += " ui-btn-active";
+			document.getElementById("hienbando").className = document.getElementById("hienbando").className.replace( /(?:^|\s)ui-btn-active(?!\S)/g , '' );
+			
+            document.getElementById("list_view").style.display = "block";
+			document.getElementById("maincontent").style.display = "block";
+            document.getElementById("map_canvas").style.display = "none";
+        }
+        
+        function hienBanDo() {
+			document.getElementById("hienbando").className += " ui-btn-active";
+			document.getElementById("hiendanhsach").className = document.getElementById("hiendanhsach").className.replace( /(?:^|\s)ui-btn-active(?!\S)/g , '' );
+			
+            document.getElementById("list_view").style.display = "none";
+			document.getElementById("maincontent").style.display = "none";
+            document.getElementById("map_canvas").style.display = "block";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Lookup</title>
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+</head>
+<body>
+    <div data-role="page" class="type-interior" style="overflow: hidden;">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>TRA CỨU</b></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <iframe id="ngoaite" style="width: 100%; height: 100%;" src="http://www.vietinbank.vn/web/home/vn/doc/saving/exrate.html"></iframe>
+        <iframe id="thoitiet" style="width: 100%; height: 100%;" src="lookup-weather.html"></iframe>
+        
+		<ul data-role="listview" id="contentmain">
+            <li><a href="news.html" data-ajax="false">
+				<img src="img/news.png" />
+				<h3>Tin tức nhanh</h3>
+				<p>Duyệt báo nhanh qua RSS</p>
+			</a></li>
+			<li><a href="lookup-kqxs.html">
+				<img src="img/xoso.png" />
+				<h3>Kết quả xổ số</h3>
+				<p>Tra cứu nhanh chóng kết quả xổ số</p>
+			</a></li>
+            <li><a onclick="ngoaiTe()">
+				<img src="img/ngoaite.png" />
+				<h3>Ngoại tệ - giá vàng</h3>
+				<p>Tra cứu ngoại tệ, giá vàng trong ngoài nước</p>
+			</a></li>
+			<li><a onclick="thoiTiet()">
+				<img src="images/weather.png" />
+				<h3>Dự báo thời tiết</h3>
+				<p>Thời tiết hiện tại nơi bạn ở</p>
+			</a></li>
+		</ul>
+        <!-- End Content -->
+        
+        <!-- Start Footer -->
+        <div data-role="footer" data-position="fixed">
+            <div data-role="navbar" data-iconpos="right">
+                <ul>
+                    <li><a data-ajax="false" href="index.html" data-icon="grid">Địa điểm</a></li>
+                    <li><a onclick="traCuuClick()" href="lookup.html" data-icon="search" class="ui-btn-active ui-state-persist">Tra cứu</a></li>
+                    <li><a data-ajax="false" href="settings.html" data-transition="none" data-icon="gear">Cài đặt</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- End Footer -->
+    </div>
+    <script>
+        $('#ngoaite').hide();
+        $('#thoitiet').hide();
+        function ngoaiTe() {
+            $('#ngoaite').show();
+            $("#contentmain").hide();
+        }
+        function thoiTiet() {
+            $('#thoitiet').show();
+            $("#contentmain").hide();
+        }
+        function traCuuClick() {
+            $('#contentmain').show();
+            $("#ngoaite").hide();
+            $('#thoitiet').hide();
+        }
+    </script>
+</body>
+</html>

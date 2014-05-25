@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mục báo</title>
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+    <script type="text/javascript">
+ // Wait for Cordova to load
+	document.addEventListener("deviceready", onDeviceReady, false);
+
+	// Cordova is ready
+	function onDeviceReady() {
+		 if (navigator.network.connection.type == Connection.NONE ) { // ||navigator.network.connection.type == Connection.UNKNOWN
+		        $('#nointernet').trigger('click');
+		         return;
+			}
+	}
+    </script>
+</head>
+<body>
+    <div data-role="page" class="type-interior" style="overflow: hidden;">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>TINH NHANH</b></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <script>
+            function readNews(newsName) {
+                sessionStorage.setItem('NewsName', newsName);
+                window.location.assign("lookup-news.html");
+            }
+        </script>
+        <table>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">VnExpress</li></ul><img src="img/news/vnexpress.jpg" onclick="readNews('VnExpress')" /></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Vietnamnet</li></ul><img src="img/news/vietnamnet.jpg" onclick="readNews('Vietnamnet')"/></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Thanh Niên</li></ul><img src="img/news/thanhnien.jpg" onclick="readNews('Thanh Niên')" /></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Tuổi Trẻ</li></ul><img src="img/news/tuoitre.jpg" onclick="readNews('Tuổi Trẻ')"/></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Việt báo</li></ul><img src="img/news/vietbao.jpg" onclick="readNews('Việt báo')" /></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Dân Trí</li></ul><img src="img/news/dantri.jpg" onclick="readNews('Dân Trí')"/></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">24h</li></ul><img src="img/news/24h.jpg" onclick="readNews('24h')"/></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Giáo Dục</li></ul><img src="img/news/giaoducvietnam.jpg" onclick="readNews('Giáo dục Việt Nam')" /></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Bóng đá +</li></ul><img src="img/news/bongda.jpg" onclick="readNews('Bóng đá +')"/></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Bóng đá 24h</li></ul><img src="img/news/bongda24h.jpg" onclick="readNews('Bóng đá 24h')" /></td>
+                
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Người lao động</li></ul><img src="img/news/nguoilaodong.jpg" onclick="readNews('Người lao động')"/></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Tiền Phong</li></ul><img src="img/news/tienphong.jpg" onclick="readNews('Tiền Phong')" /></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Tin tức Online</li></ul><img src="img/news/tintuconline.jpg" onclick="readNews('Tin tức Online')"/></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Vietnam+</li></ul><img src="img/news/vietnamplus.jpg" onclick="readNews('Vietnam+')" /></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Genk</li></ul><img src="img/news/genk.jpg" onclick="readNews('Genk')"/></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">eva.vn</li></ul><img src="img/news/eva.jpg" onclick="readNews('eva.vn')" /></td>
+            </tr>
+            <tr>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Zing news</li></ul><img src="img/news/zingnews.jpg" onclick="readNews('Zing news')" /></td>
+                <td><ul data-role="listview" data-theme="d" data-divider-theme="b"><li data-role="list-divider">Người đưa tin</li></ul><img src="img/news/nguoiduatin.jpg" onclick="readNews('Người đưa tin')" /></td>
+            </tr>
+        </table>
+
+        <style>
+            img {
+                width: 100%;
+                height: 100%;
+                border: 1px solid #ddd;
+                background: #808080;
+                border: 1px solid #ddd;
+                padding: 3px;
+                background: #808080;
+            }
+
+                img:hover {
+                    background: #00ff21;
+                }
+
+            table {
+                margin-left: -5px;
+                width: 100%;
+            }
+
+            td {
+                width: 50%;
+                height: 50px;
+                padding: 0px 5px 0px 5px;
+            }
+
+            .ui-li-divider {
+                margin-left: 1px;
+                margin-right: -7px;
+                margin-bottom: -1px;
+                height: 10px;
+                padding-top: 0px;
+                font-size: 13px;
+            }
+        </style>
+
+        
+        <!-- End Content -->
+
+        <!-- Start Footer -->
+        <div data-role="footer" data-position="fixed">
+            <div data-role="navbar" data-iconpos="right">
+                <ul>
+                    <li><a data-ajax="false" href="index.html" data-transition="none" data-icon="grid">Địa điểm</a></li>
+                    <li><a data-ajax="false" href="lookup.html" data-icon="search" class="ui-btn-active ui-state-persist">Tra cứu</a></li>
+                    <li><a data-ajax="false" href="settings.html" data-transition="none" data-icon="gear">Cài đặt</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- End Footer -->
+    </div>
+    
+<!-- Thông báo ẩn -->
+<div style="visibility:hidden">
+    <a id="nointernet" href="dialog-nointernet.html" data-role="button" data-inline="true" data-rel="dialog" data-transition="slidedown">go go</a>
+    <a id="closeapp" href="dialog-close.html" data-role="button" data-inline="true" data-rel="dialog" data-transition="slidedown">go go</a>
+</div>
+</body>
+</html>

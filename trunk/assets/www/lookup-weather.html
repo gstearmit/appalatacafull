@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Thời tiết</title>
+    <!-- jQuery references -->
+    <script src="js/jquery.js"></script>
+
+</head>
+<body>
+    <select id="cmbThoiTiet" style="width: 100%;" onselect="changeWeather()">
+        <option value="hanoi">Hà Nội</option>
+        <option value="hochiminh">Hồ Chí Minh</option>
+        <option value="danang">Đà Nẵng</option>
+        <option value="hue">Huế</option>
+        <option value="cần thơ">Cần thơ</option>
+        <option value="bà rịa vũng tàu">Vũng Tàu</option>
+        <option value="Bình Dương">Bình Dương</option>
+    </select>
+    <script>
+        window.sessionStorage.setItem('thoitiet', 'hanoi, vietnam');
+        $('#cmbThoiTiet').change(function () {
+            var val = $("#cmbThoiTiet option:selected").val();
+            $('#city').html($("#cmbThoiTiet option:selected").text());
+            window.sessionStorage.setItem('thoitiet', val+', vietnam');
+            var iframe = document.getElementById('weather');
+            iframe.src = iframe.src;
+        });
+    </script>
+    <div style="margin: auto;width:180px;">
+        <h3>Thông tin thời tiết</h3>
+        <h4 id="city">Hà Nội</h4>
+        <iframe id="weather" src="weather.html" style="width:100%; border:none;"></iframe>
+        
+    </div>
+</body>
+</html>

@@ -1,0 +1,603 @@
+﻿<html>
+<head>
+    <title>Wikilookup</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="SQLitePlugin.js"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).bind("mobileinit", function () { $.mobile.useFastClick = false; });
+
+        var db; var b0 = false, b1 = false, b2 = false, b3 = false;
+        var _busCode, _typeFillter, _textFillter;   // Variables for bus
+        var _maTram; var id; var wBusStation = '';  // Variable to find list bus station
+        var countBusFavorite; var arrBusFavorite;   // Variablies for get favorite bus list
+
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // Cordova is ready
+        function onDeviceReady() {
+            db = window.sqlitePlugin.openDatabase('bus_sai_gon', '1.0', 'bus_sai_gon', 20000);
+        }
+
+        // Set child pages
+        function setFocus(t) {
+            if (t == 0) {
+                $('#titlesubpage').text('TÌM ĐƯỜNG ĐI BUS');
+                $('.direction').show(); $('.businfo').hide(); $('.busstation').hide(); $('.favorite').hide();
+                id = 0; $('#timnhanh').hide();
+
+                //$('.direction').load('saigonbus-page1.html', function () { });
+            }
+            if (t == 1) {
+                $('#yeuthichmenu').html('Thêm vào yêu thích');
+                $('#titlesubpage').text('THÔNG TIN CÁC TUYẾN XE BUS');
+                $('.direction').hide(); $('.businfo').show(); $('.busstation').hide(); $('.favorite').hide();
+                id = 1; $('#timnhanh').hide();
+
+                if (!b1) db.transaction(queryBusInfoDB, errorCB);
+                b1 = true;
+            }
+            if (t == 2) {
+                $('#titlesubpage').text('THÔNG TIN TRẠM BUS');
+                $('.direction').hide(); $('.businfo').hide(); $('.busstation').show(); $('.favorite').hide();
+                id = 2; $('#timnhanh').show();
+                // if (!b2) db.transaction(queryBusStationDB, errorCB);
+                b2 = true;
+            }
+            if (t == 3) {
+                $('#yeuthichmenu').html('Loại khỏi danh sách');
+                $('#titlesubpage').text('GHI NHỚ NHANH');
+                $('.direction').hide(); $('.businfo').hide(); $('.busstation').hide(); $('.favorite').show();
+                id = 3; $('#timnhanh').hide();
+
+                countBusFavorite = window.localStorage.getItem('countBusFavorite');
+                var listBusFavorite = window.localStorage.getItem('BusFavorite');
+                arrBusFavorite = new Array();
+                if (countBusFavorite == null) countBusFavorite = 0;
+                else arrBusFavorite = (listBusFavorite + '').split(',');
+                if (!b3) db.transaction(queryBusInfoFavoriteDB, errorCB);
+                b3 = true;
+            }
+        }
+
+        function timNhanh() {
+            if (id == 2) {
+                wBusStation = document.getElementById("search-mini").value;
+                db.transaction(queryBusStationDB, errorCB);
+            }
+        }
+
+        // Set ma_tuyen
+        function setMaTuyen(code) { _busCode = code; }
+
+        // Set ma_tram
+        function setMaTram(code, cactuyendiqua, luotdi, luotve) {
+            _maTram = code; $('#cactuyendiqua').html(cactuyendiqua);
+            $('#luotdi').html(luotdi); $('#luotve').html(luotve);
+        }
+
+        // SQL01 Query database ---------------------------------------------------------------------------------------------------------------------------------\\
+        // Query the database get bus infomations
+        function queryBusInfoDB(tx) {
+            tx.executeSql('SELECT ma_tuyen, ten_tuyen FROM tuyen', [], queryBusInfoSuccess, errorCB);
+        }
+
+        // Query the database get bus station with bus infomations 
+        function queryBusInfoStationDB(tx) {
+            var temp1 = '', temp2 = '', temp3 = '', temp4 = '', temp5 = '';
+            if (_typeFillter == 'cac_tuyen_di_qua') {
+                temp1 = 'select dia_chi from tram ';                temp2 = ' where (' + _typeFillter + ' like ' + '"%,' + _busCode + ',%"' + ')';                temp3 = ' or (' + _typeFillter + ' like "' + _busCode + ',%"' + ')';                temp4 = ' or (' + _typeFillter + ' like "%,' + _busCode + '")';                temp5 = ' or (luot_di = "' + _busCode + '")';
+            }
+            else {
+                temp1 = 'select tram.dia_chi from ' + _typeFillter + ' join tram on ' + _typeFillter + '.ma_tram = tram.ma_tram';
+                temp2 = ' where ' + _typeFillter + '.ma_tuyen = ' + _busCode;
+            }
+            var sql = temp1 + temp2 + temp3 + temp4 + temp5;
+
+            tx.executeSql(sql, [], queryBusInfoStationSuccess, errorCB);
+        }
+
+        // Query the database get details bus infomations
+        function queryBusDetailsDB(tx) {
+            tx.executeSql('SELECT * FROM tuyen WHERE ma_tuyen = ' + _busCode, [], queryBusDetailsSuccess, errorCB);
+        }
+
+        // Query the database get bus station
+        function queryBusStationDB(tx) {
+            tx.executeSql('SELECT * FROM tram WHERE dia_chi like "%' + wBusStation + '%"', [], queryBusStationSuccess, errorCB);
+        }
+
+        // Query the database get bus infomations in favorite
+        function queryBusInfoFavoriteDB(tx) {
+            var strWHERE = 'WHERE ';
+            for (var i = 0; i < countBusFavorite; i++) {
+                strWHERE += ' ma_tuyen = ' + arrBusFavorite[i] + ' or ';
+            }
+            strWHERE += 'ma_tuyen = ""';
+
+            tx.executeSql('SELECT ma_tuyen, ten_tuyen FROM tuyen ' + strWHERE, [], queryBusInfoFavoriteSuccess, errorCB);
+        }
+
+        // Query the database get bus id
+        function queryGetTuyenBusDB(tx) {
+            sql = 'SELECT ma_tuyen FROM luot_di AS ms WHERE ms.ma_tram = "' + maTramDau + '" and ms.id < (SELECT id FROM luot_di as tm WHERE (tm.ma_tuyen = ms.ma_tuyen) and ma_tram = "' + maTramCuoi + '")';
+            tx.executeSql(sql, [], queryGetTuyenBusSuccess, errorCB);
+        }
+        // SQL01 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+
+        // SQL02 Query database callback ------------------------------------------------------------------------------------------------------------------------\\
+        // Query the database get bus infomations callbacks 
+        function queryBusInfoSuccess(tx, results) {
+            var len = results.rows.length;
+            $('#buslist').children().remove('li');
+            for (var i = 0; i < len; i++) {
+                var ma_tuyen = results.rows.item(i).ma_tuyen; var ten_tuyen = results.rows.item(i).ten_tuyen;
+                $('#buslist').append('<li data-filtertext=" No.' + ma_tuyen + ' - ' + ten_tuyen
+                    + '"><a href="#menu" data-rel="popup" data-transition="turn" id="ma_tuyen-' + ma_tuyen
+                    + '" onclick="setMaTuyen(' + ma_tuyen + ')">' + ma_tuyen + ' - ' + ten_tuyen + '</a></li>');
+            }
+
+            $('#buslist').listview('refresh');
+        }
+
+        // Query the database get bus infomations callbacks 
+        function queryBusInfoStationSuccess(tx, results) {
+            var len = results.rows.length;
+            var listTram = '';
+            var title;
+            if (_typeFillter == 'cac_tuyen_di_qua') title = 'DANH SÁCH CÁC TRẠM';
+            if (_typeFillter == 'luot_di') title = 'CÁC TRẠM LƯỢT ĐI';
+            if (_typeFillter == 'luot_ve') title = 'CÁC TRẠM LƯỢT VỀ';
+
+            for (var i = 0; i < len; i++) {
+                var dia_chi = results.rows.item(i).dia_chi;
+                listTram += '- ' + dia_chi + '\n';
+            }
+
+            navigator.notification.alert(listTram, function () { }, title, 'Đóng lại');
+        }
+
+        // Query the database get bus stations callbacks 
+        var count = 0, max = 50; var _results, len;
+        function queryBusStationSuccess(tx, results) {
+            len = results.rows.length; _results = results;
+            count = 0; max = 50;
+
+            if (bTramDanDuong) {
+                $('#listbusstationdir').children().remove('li');
+                addMoreToListBusStationDir();
+                bTramDanDuong = false;
+            }
+            else {
+                $('#busstationlist').children().remove('li');
+                addMoreToListBusStation();
+            }
+        }
+        function addMoreToListBusStationDir() {
+            $('#xemthembustim').hide();
+            for (var i = count, j = 0; i < len && j < max; i++, j++, count++) {
+                var dia_chi = _results.rows.item(i).dia_chi;
+                var ma_tram = _results.rows.item(i).ma_tram;
+                var cac_tuyen_di_qua = _results.rows.item(i).cac_tuyen_di_qua;
+                var luot_di = _results.rows.item(i).luot_di;
+                var luot_ve = _results.rows.item(i).luot_ve;
+
+                var aSukien = 'onclick = "' + "setThongTinDanDuong('" + ma_tram + "','" + dia_chi + "','" + cac_tuyen_di_qua + "','" + luot_di + "','" + luot_ve + "')" + '"';
+
+                $('#listbusstationdir').append('<li ' + aSukien + ' data-filtertext="' + ma_tram + ' - ' + dia_chi + '"><a href="#"' + ' id="ma_tram_dan_duong-' + ma_tram + '">' + dia_chi + '</a></li>');
+
+                var sizeResult = $("#listbusstationdir li").size();
+                if (sizeResult <= 0) $('#ketquatimtramdanduong').hide();
+                else $('#ketquatimtramdanduong').show();
+            }
+            max += max;
+            $('#listbusstationdir').listview('refresh');
+            if (count < len) $('#xemthembustim').show();
+        }
+        function addMoreToListBusStation() {
+            $('#bsmore').hide();
+
+            for (var i = count, j = 0; i < len && j < max; i++, j++, count++) {
+                var dia_chi = _results.rows.item(i).dia_chi;
+                var ma_tram = _results.rows.item(i).ma_tram;
+                var cac_tuyen_di_qua = _results.rows.item(i).cac_tuyen_di_qua;
+                var luot_di = _results.rows.item(i).luot_di;
+                var luot_ve = _results.rows.item(i).luot_ve;
+
+                $('#busstationlist').append('<li data-filtertext="' + ma_tram + ' - ' + dia_chi
+                + '"><a onclick="setMaTram(' + "'" + ma_tram + "', '" + cac_tuyen_di_qua + "', '" + luot_di + "', '" + luot_ve + "'" + ')" href="#busstationdetail" data-rel="popup" data-transition="slidedown"'
+                + ' id="ma_tram-' + ma_tram + '">' + dia_chi + '</a></li>');
+            }
+
+            max += max;
+
+            $('#busstationlist').listview('refresh');
+
+            if (count < len) $('#bsmore').show();
+        }
+
+        // Query the database get details infomation bus infomations callbacks
+        function queryBusDetailsSuccess(tx, results) {
+            var len = results.rows.length;
+            // newContent.html("Nội dung đã được thay đổi");
+            for (var i = 0; i < len; i++) {
+                var ma_tuyen = results.rows.item(i).ma_tuyen;
+                var ten_tuyen = results.rows.item(i).ten_tuyen;
+                navigator.notification.alert(ten_tuyen + "\n\n- Xe "
+                    + results.rows.item(i).loai_hinh_hoat_dong + "\n- Cự ly "
+                    + results.rows.item(i).cu_ly + "\n- Có " + results.rows.item(i).so_chuyen
+                    + "\n- Thời gian chuyến " + results.rows.item(i).thoi_gian_chuyen
+                    + "\n   " + results.rows.item(i).gian_cach
+                    + "\n- Thời gian hoạt động:\n   " + results.rows.item(i).thoi_gian_hoat_dong,
+                    alertDismissed, "Tuyến số " + ma_tuyen, "Đóng lại");
+            }
+        }
+
+        // Query the database get bus infomations favorite callbacks 
+        function queryBusInfoFavoriteSuccess(tx, results) {
+            var len = results.rows.length;
+            $('#busfavorite').children().remove('li');
+            for (var i = 0; i < len; i++) {
+                var ma_tuyen = results.rows.item(i).ma_tuyen; var ten_tuyen = results.rows.item(i).ten_tuyen;
+                $('#busfavorite').append('<li id="ma_tuyen_favorite-' + ma_tuyen + '"  data-filtertext=" No.' + ma_tuyen + ' - ' + ten_tuyen
+                    + '"><a href="#menu" data-rel="popup" data-transition="turn" onclick="setMaTuyen(' + ma_tuyen + ')">' + ma_tuyen + ' - ' + ten_tuyen + '</a></li>');
+            }
+
+            $('#busfavorite').listview('refresh');
+        }
+
+        // Query the database get bus id callbacks 
+        function queryGetTuyenBusSuccess(tx, results) {
+            var len = results.rows.length;
+            if (len <= 0) $('#ketquachidanbusnoidung').html('Rất tiếc! Không có tuyến buýt nào có thể đi được từ A -> B như trên.');
+            else if (len == 1) {
+                var num = results.rows.item(0).ma_tuyen;
+                $('#ketquachidanbusnoidung').html('Tuyến số ' + num + ' có thể đi được.');
+            }
+            else {
+                var text = 'Tuyến số ';
+                for (var i = 0; i < len; i++) {
+                    text += results.rows.item(i).ma_tuyen + ' - ';
+                }
+                $('#ketquachidanbusnoidung').html('Tuyến số ' + text + 'có thể đi được.');
+            }
+        }
+        // SQL02 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+
+        // SQL03 Others------------------------------------------------------------------------------------------------------------------------------------------\\
+        // Transaction error callback
+        function errorCB(err) { console.log("Error processing SQL: " + err); }
+
+        function alertDismissed() { }
+        // SQL03 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+    </script>
+
+    <style>
+        div.ui-input-search.ui-shadow-inset.ui-btn-corner-all.ui-btn-shadow.ui-icon-searchfield.ui-body-c {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <script>setFocus(0)</script>
+    <!-- PC1 - Header -------------------------------------------------------------------------------------->
+    <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed" id="header">
+        <h1 style="text-transform: capitalize;"><b>BUS SÀI GÒN</b></h1>
+        <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+        <a data-ajax="false" href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        <div data-role="header" data-theme="a" class="ui-bar" style="text-align: center; margin-left: -5px" id="titlesubpage">TÌM ĐƯỜNG ĐI BUS</div>
+        <div id="timnhanh" data-role="header" data-theme="a" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+            <div class="ui-block-a" style="width: 70%; padding-top: 4px; padding-left: 5px">
+                <input placeholder="Tìm nhanh" type="search" data-theme="d" name="search-mini" id="search-mini" data-mini="true" />
+            </div>
+            <div class="ui-block-b" style="width: 30%;">
+                <div>
+                    <button type="submit" data-theme="b" onclick="timNhanh()">Tìm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- PC1 ----------------------------------------------------------------------------------------------->
+
+    <!-- PC2 - Content ------------------------------------------------------------------------------------->
+    <!-- PC2.1 - bus direction -------------------------------------------------------------------------->
+    <div class="direction" style="margin-top: 0; overflow-x: hidden;">
+        <div id="vitridedanduong" style="height: 100px;">
+            <div data-role="navbar">
+                <ul>
+                    <li><a data-role="button" onclick="getLocationDanDuongBus(1)" href="#danduongbus" data-rel="popup" data-transition="turn">Điểm đi</a></li>
+                    <li><a data-role="button" onclick="hoanDoiViTriDanDuong()">Hoán đổi</a></li>
+                    <li><a data-role="button" onclick="getLocationDanDuongBus(2)" href="#danduongbus" data-rel="popup" data-transition="turn">Điểm đến</a></li>
+                </ul>
+            </div>
+
+            <div class="ui-grid-a">
+                <div class="ui-block-a" style="width: 5%;"><strong>A: </strong></div>
+                <div class="ui-block-b" id="dddiemdi" style="width: 95%;"></div>
+            </div>
+            <div class="ui-grid-a">
+                <div class="ui-block-a" style="width: 5%;"><strong>B: </strong></div>
+                <div class="ui-block-b" id="dddiemden" style="width: 95%;"></div>
+            </div>
+        </div>
+        <button data-theme="e" onclick="getValueTuyenXe()">Gợi ý tuyết xe buýt</button>
+        <div id="ketquachidanbus" class="ui-body ui-body-c">
+            <h4 style="text-align: center;">KẾT QUẢ TÌM KIẾM</h4>
+            <p id="ketquachidanbusnoidung"></p>
+        </div>
+        <div class="ui-body ui-body-d">
+            <button data-theme="f" onclick="gotoMapViews('bus_station')">Xem danh sách trạm hiện tại</button>
+            <script>
+                function gotoMapViews(key) {
+                    if (navigator.network.connection.type == Connection.NONE) {
+                        navigator.notification.alert('Không tìm thấy kết nối Internet! Vui lòng thử lại sau.', function () { }, 'Thông báo', 'Đóng lại');
+                        return;
+                    }
+
+                    var latitude = window.localStorage.getItem('latitude');
+                    var longitude = window.localStorage.getItem('longitude');
+
+                    window.location.assign("mapviews.html#" + latitude + "@" + longitude + "$" + key);
+                }
+            </script>
+        </div>
+    </div>
+    <!-- PC2.1 ------------------------------------------------------------------------------------------>
+    <!-- PC2.2 - Businfo -------------------------------------------------------------------------------->
+    <div class="businfo" style="margin-top: 11px; overflow-x: hidden;">
+        <ul data-role="listview" data-filter="true" data-filter-placeholder="Lọc kết quả" data-inset="true" style="margin-top: 20px;" id="buslist"></ul>
+    </div>
+    <!-- PC2.2 ------------------------------------------------------------------------------------------>
+
+    <!-- PC2.3 - busstation ----------------------------------------------------------------------------->
+    <div class="busstation" style="margin-top: 11px; overflow-x: hidden;">
+        <ul data-role="listview" data-filter="true" data-filter-placeholder="Lọc kết quả" data-inset="true" style="margin-top: 20px;" id="busstationlist"></ul>
+        <button data-theme="f" onclick="addMoreToListBusStation()" id="bsmore">Xem thêm kết quả</button>
+    </div>
+    <!-- PC2.3 ------------------------------------------------------------------------------------------>
+
+    <!-- PC2.4 - Favorite ------------------------------------------------------------------------------->
+    <div class="favorite" style="margin-top: 11px; overflow-x: hidden;">
+        <ul data-role="listview" data-filter="true" data-filter-placeholder="Lọc kết quả" data-inset="true" style="margin-top: 20px;" id="busfavorite"></ul>
+    </div>
+    <!-- PC2.4 ------------------------------------------------------------------------------------------>
+    <!-- PC2 ----------------------------------------------------------------------------------------------->
+
+    <!-- PC3 - Footer -------------------------------------------------------------------------------------->
+    <div data-role="footer" data-id="foo1" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" id="bardirection" onclick="setFocus(0)" class="ui-btn-active ui-state-persist">Chỉ dẫn</a></li>
+                <li><a href="#" id="barbusinfo" onclick="setFocus(1)">T. Tin</a></li>
+                <li><a href="#" id="barbusstation" onclick="setFocus(2)">Trạm</a></li>
+                <li><a href="#" id="barfavorite" onclick="setFocus(3)">Yêu thích</a></li>
+            </ul>
+        </div>
+    </div>
+    <!-- PC3 ----------------------------------------------------------------------------------------------->
+
+    <!-- DT1 Data temp menu -------------------------------------------------------------------------------->
+    <div data-role="popup" id="menu" data-theme="none">
+        <ul data-role="listview" data-inset="true" style="min-width: 210px;" data-theme="f">
+            <li><a href="#" data-rel="popup" onclick="getDetailsBus()">Xem chi tiết</a></li>
+            <li><a href="#" onclick="viewTram(0)">Danh sách các trạm</a></li>
+            <li><a href="#" onclick="viewTram(1)">Xem các trạm lượt đi</a></li>
+            <li><a href="#" onclick="viewTram(2)">Xem các trạm lượt về</a></li>
+            <li><a href="#" id="yeuthichmenu" onclick="addFavorite()">Thêm vào yêu thích</a></li>
+        </ul>
+    </div>
+    <!-- DT1 ----------------------------------------------------------------------------------------------->
+
+    <!-- DT2 Data temp menu -------------------------------------------------------------------------------->
+    <div data-role="popup" id="busstationdetail" data-theme="e" data-icon="delete" data-iconpos="notext" class="ui-btn-right">
+        <h4>Các tuyến đi qua:</h4>
+        <p id="cactuyendiqua">Không có dữ liệu</p>
+        <h4>Lượt đi:</h4>
+        <p id="luotdi">Không có dữ liệu</p>
+        <h4>Lượt về:</h4>
+        <p id="luotve">Không có dữ liệu</p>
+    </div>
+    <!-- DT2 ----------------------------------------------------------------------------------------------->
+
+    <!-- DT3 Dan duong bus -------------------------------------------------------------------------------->
+    <div data-role="popup" id="danduongbus" data-theme="none" style="width: auto;">
+        <ul data-role="listview" data-inset="true" style="min-width: 210px;" data-theme="f">
+            <li><a href="#" onclick="getViTriHienTai()">Lấy vị trí hiện tại</a></li>
+            <li>
+                <a href="#" onclick="chonTuDanhSachTram()" id="itemdstram">Chọn từ danh sách trạm</a>
+                <div id="tooltimkiem">
+                    <div id="tramdanduong" data-role="header" data-theme="a" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+                        <div class="ui-block-a" style="width: 70%; padding-top: 4px; padding-left: 5px">
+                            <input placeholder="Tìm nhanh" type="search" data-theme="d" name="search-mini" id="textdanduong" data-mini="true" />
+                        </div>
+                        <div class="ui-block-b" style="width: 30%; float: left;">
+                            <div>
+                                <button type="submit" data-theme="b" onclick="timTramTuDanhSach()">Tìm</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ketquatimtramdanduong">
+                        <ul data-role="listview" data-theme="b" data-filter="true" data-filter-placeholder="Lọc kết quả" style="margin-top: 10px;" data-inset="true" id="listbusstationdir"></ul>
+                        <button data-theme="a" onclick="addMoreToListBusStationDir()" id="xemthembustim">Xem thêm kết quả</button>
+                    </div>
+                </div>
+            </li>
+            <li><a href="#" onclick="timNhanhTram()">Tìm nhanh</a></li>
+        </ul>
+    </div>
+    <!-- DT3 ----------------------------------------------------------------------------------------------->
+
+    <script>
+        // Get details bus infomations
+        function getDetailsBus() {
+            $("#menu").popup("close");
+            db.transaction(queryBusDetailsDB, errorCB);
+        }
+
+        // View bus station with bus code 0: see all 1: lượt đi 2: lượt về
+        function viewTram(t) {
+            $("#menu").popup("close");
+            if (t == 0) _typeFillter = 'cac_tuyen_di_qua';
+            else if (t == 1) _typeFillter = 'luot_di';
+            else if (t == 2) _typeFillter = 'luot_ve';
+
+            db.transaction(queryBusInfoStationDB, errorCB);
+        }
+
+        // Add bus info to favorite list
+        function addFavorite() {
+            var countBusFavorite = window.localStorage.getItem('countBusFavorite');
+            var listBusFavorite = window.localStorage.getItem('BusFavorite');
+            var arrBusFavorite = new Array();
+            if (countBusFavorite == null) countBusFavorite = 0;
+            else arrBusFavorite = (listBusFavorite + '').split(',');
+
+            // Thêm vào danh sách
+            if (id == 1) {
+                var b = true;
+                for (var i = 0; i < countBusFavorite; i++) {
+                    if (arrBusFavorite[i] == _busCode) { b = false; break; };
+                }
+
+                if (b) arrBusFavorite[countBusFavorite++] = _busCode;
+            }
+
+            // Loại khỏi danh sách
+            if (id == 3) {
+                for (var i = 0; i < countBusFavorite; i++) {
+                    if (arrBusFavorite[i] == _busCode) {
+                        arrBusFavorite.splice(i, 1);
+                        $('#ma_tuyen_favorite-' + _busCode).remove();
+                        $('#busfavorite').listview('refresh');
+                        break;
+                    };
+                }
+                countBusFavorite--;
+            }
+
+            window.localStorage.setItem('countBusFavorite', countBusFavorite);
+            window.localStorage.setItem('BusFavorite', arrBusFavorite);
+
+            $("#menu").popup("close");
+            b3 = false;
+        }
+
+        // Code dành cho dẫn đường bus ---------------------------------------
+        var vitrithu = 0;
+        function getLocationDanDuongBus(t) {
+            $('#tooltimkiem').hide();
+            $('#itemdstram').show();
+            if (t == 1) vitrithu = 1;
+            else if (t == 2) vitrithu = 2;
+        }
+
+        var maTramDau = '', maTramCuoi = '', cacTuyeNDiQuaDau = '', cacTuyeNDiQuaCuoi = '', luotDiDau = '', luotDiCuoi = '', luotVeDau = '', luotVeCuoi = '';
+        function setThongTinDanDuong(maTram, text, cacTuyeNDiQua, luotDi, luotVe) {
+            if (vitrithu == 1) {
+                maTramDau = maTram; cacTuyeNDiQuaDau = cacTuyeNDiQua; luotDiDau = luotDi; luotVeDau = luotVe;
+                $("#dddiemdi").html(text);
+            }
+            else if (vitrithu == 2) {
+                maTramCuoi = maTram; cacTuyeNDiQuaCuoi = cacTuyeNDiQua; luotDiCuoi = luotDi; luotVeCuoi = luotVe;
+                $("#dddiemden").html(text);
+            }
+            closeLocationDanDuongBus();
+        }
+
+        // Hoán đỗi vị trí dẫn đường
+        function hoanDoiViTriDanDuong() {
+            var temp1 = maTramDau; maTramDau = maTramCuoi; maTramCuoi = temp1;
+            var temp2 = cacTuyeNDiQuaDau; cacTuyeNDiQuaDau = cacTuyeNDiQuaCuoi; cacTuyeNDiQuaCuoi = temp2;
+            var temp3 = luotDiDau; luotDiDau = luotDiCuoi; luotDiCuoi = temp3;
+            var temp4 = luotVeDau; luotVeDau = luotVeCuoi; luotVeCuoi = temp4;
+
+            var temp0 = $("#dddiemdi").text();
+            $("#dddiemdi").html($("#dddiemden").text());
+            $("#dddiemden").html(temp0);
+        }
+
+        function getViTriHienTai() {
+            closeLocationDanDuongBus();
+        }
+
+        function chonTuDanhSachTram() {
+            $('#tooltimkiem').show();
+            $('#itemdstram').hide();
+            var sizeResult = $("#listbusstationdir li").size();
+            if (sizeResult <= 0) $('#ketquatimtramdanduong').hide();
+            else $('#ketquatimtramdanduong').show();
+        }
+
+        function timNhanhTram() {
+            closeLocationDanDuongBus();
+        }
+
+
+        function closeLocationDanDuongBus() {
+            $("#danduongbus").popup("close");
+        }
+
+        var bTramDanDuong = false;
+        function timTramTuDanhSach() {
+            bTramDanDuong = true;
+            wBusStation = document.getElementById("textdanduong").value;
+            db.transaction(queryBusStationDB, errorCB);
+        }
+
+        function getValueTuyenXe() {
+            if (maTramDau == '') {
+                navigator.notification.alert('Vui lòng chọn vị trí bắt đầu đi của bạn!', function () { }, 'Thông báo', 'Đóng lại');
+                return;
+            } else if (maTramCuoi == '') {
+                navigator.notification.alert('Vui lòng chọn vị trí cần đến của bạn!', function () { }, 'Thông báo', 'Đóng lại');
+                return;
+            }
+
+            if (luotDiDau != '' && luotDiCuoi != '' && luotVeDau != '' && luotVeCuoi != '') {
+                var arrCacTuyenDiQuaDau = cacTuyeNDiQuaDau.split(',');
+                var arrCacTuyenDiQuaCuoi = cacTuyeNDiQuaCuoi.split(',');
+                var arrLuotDiDau = luotDiDau.split(',');
+                var arrLuotDiCuoi = luotDiCuoi.split(',');
+                var arrLuotVeDau = luotVeDau.split(',');
+                var arrLuotVeCuoi = luotVeCuoi.split(',');
+                var arrCacTuyenCoTheDi = new Array();
+
+                var iSoTuyenDiDuoc = 0;
+                for (var i = 0; i < arrCacTuyenDiQuaDau.length; i++) {
+                    for (var j = 0; j < arrCacTuyenDiQuaCuoi.length; j++) {
+                        if (arrCacTuyenDiQuaDau[i] == arrCacTuyenDiQuaCuoi[j]) {
+                            arrCacTuyenCoTheDi[iSoTuyenDiDuoc++] = arrCacTuyenDiQuaDau[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (iSoTuyenDiDuoc == 0) {
+                    $('#ketquachidanbusnoidung').html('Rất tiếc! Chúng tôi không tìm thấy tuyến xe buýt nào có thể đi được từ A -> B');
+                } else {
+                    $('#ketquachidanbusnoidung').html('Tuyến buýt có thể đi được là: ' + arrCacTuyenCoTheDi);
+                }
+            } else {
+                db.transaction(queryGetTuyenBusDB, errorCB);
+            }
+        }
+        // Code dành cho dẫn đường bus ---------------------------------------
+    </script>
+</body>
+</html>

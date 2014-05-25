@@ -1,0 +1,283 @@
+﻿<html>
+<head>
+    <title>Category</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAv9eLBwnLgRG2QfwOJvLUBwRrtw1sGTtc&sensor=false&language=vi"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&language=vi"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        var latitude = window.localStorage.getItem('latitude');
+        var longitude = window.localStorage.getItem('longitude');
+        var timthay = false;			// Vị trí điện thoại tìm thấy hay không?
+        if (latitude == null) {
+            latitude = 10.8230989;      // Khởi tọa vĩ độ ban đầu
+            longitude = 106.6296638;    // Khởi tạo kinh độ ban đầu
+            window.localStorage.setItem('info', 'null');
+        }
+
+        // Kiếm theo nhóm
+        function findKeywords() {
+            var key = document.getElementById('search-mini').value;
+            if (!key) return;
+
+            sessionStorage.setItem('category-key', key);
+
+            for (i = 0; i < key.length; i++) key = key.replace(' ', '%20');
+            if (!timthay) {
+                navigator.notification.confirm(
+			            'Chưa tìm thấy vị trí hiện tại của bạn. Chúng tôi sẽ tìm kiếm tại vị trí trước đó mà tôi tìm được, bạn có muốn tiếp tục?',
+			            function (buttonIndex) { if (buttonIndex == 2) { window.location.assign("mapviewsmore.html#" + latitude + "@" + longitude + "$" + key); } },
+			            'Chưa tìm thấy vị trí',
+			            'Thôi,Tiếp tục'
+			        );
+            } else { window.location.assign("mapviewsmore.html#" + latitude + "@" + longitude + "$" + key); }
+        }
+
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // Cordova is ready
+        function onDeviceReady() {
+            var options = { timeout: 3000 };
+            watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+            onChangeDanhMuc();
+        }
+
+        function onSuccess(position) {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            timthay = true;
+            var element = document.getElementById('geolocation');
+
+            if (navigator.network.connection.type == Connection.NONE) {
+                element.innerHTML = 'Không thể định danh được vị trí của bạn!<br/>Bạn đang ở tọa độ:<br/>Kinh độ: ' + position.coords.longitude + '<br/>Vĩ độ: ' + position.coords.latitude;
+                return;
+            }
+
+            var geocoder = new google.maps.Geocoder();
+            var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) { element.innerHTML = 'Bạn đang ở ' + results[1].formatted_address; }
+                    else { element.innerHTML = 'Không thể định danh được vị trí của bạn!<br/>Bạn đang ở tọa độ:<br/>Kinh độ: ' + position.coords.longitude + '<br/>Vĩ độ: ' + position.coords.latitude; }
+                }
+                else { element.innerHTML = 'Không thể định danh được vị trí của bạn!<br/>Bạn đang ở tọa độ:<br/>Kinh độ: ' + position.coords.longitude + '<br/>Vĩ độ: ' + position.coords.latitude; }
+            });
+        }
+
+        function onError(error) { }
+
+        function onChangeDanhMuc() {
+            var dm = document.getElementById("danhmuc");
+            var selected = dm.options[dm.selectedIndex].value;
+            $("#khoakiem option").remove();
+            $('#khoakiem').append('<option>Chọn khóa kiếm</option>');
+            $("#khoakiem").selectmenu('refresh');           // làm mới danh sách tỉnh
+
+            if (selected == 'dichvu') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('ATM', 'atm');
+                select.options[select.options.length] = new Option('Ngân hàng', 'bank');
+                select.options[select.options.length] = new Option('Sửa xe', 'car_repair');
+                select.options[select.options.length] = new Option('Thuê xe', 'car_rental');
+                select.options[select.options.length] = new Option('Rửa xe', 'car_wash');
+                select.options[select.options.length] = new Option('Bưu điện', 'post_office');
+            }
+            else if (selected == 'muasam') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Cửa hàng', 'store');
+                select.options[select.options.length] = new Option('Trung tâm thương mại', 'shopping_mall');
+                select.options[select.options.length] = new Option('Cửa hàng bách hoá', 'department_store');
+            }
+            else if (selected == 'giaoduc') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Đại học - Cao đẳng', 'university');
+                select.options[select.options.length] = new Option('Trường học', 'school');
+            }
+            else if (selected == 'giaitri') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Sở thú', 'zoo');
+                select.options[select.options.length] = new Option('Rạp chiếu phim', 'movie_theater');
+                select.options[select.options.length] = new Option('Quán rựu', 'liquor_store');
+                select.options[select.options.length] = new Option('Quán bar', 'bar');
+                select.options[select.options.length] = new Option('Quán cafe', 'cafe');
+            }
+            else if (selected == 'cqtc') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Cấp ủy ban (chính phủ)', 'local_government_office');
+                select.options[select.options.length] = new Option('Sở tài chính', 'finance');
+                select.options[select.options.length] = new Option('Đại sứ quán', 'embassy');
+                select.options[select.options.length] = new Option('Các tổ chức khác', 'establishment');
+            }
+            else if (selected == 'yte') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Bệnh viện', 'hospital');
+                select.options[select.options.length] = new Option('Hiệu thuốc', 'pharmacy');
+                select.options[select.options.length] = new Option('Nha khoa', 'dentist');
+                select.options[select.options.length] = new Option('Bác sĩ riêng', 'doctor');
+                select.options[select.options.length] = new Option('Vật lý trị liệu', 'physiotherapist');
+                select.options[select.options.length] = new Option('Thú y', 'veterinary_care');
+            }
+            else if (selected == 'amthuc') {
+                var select = document.getElementById("khoakiem");
+                select.options[select.options.length] = new Option('Nhà hàng', 'restaurant');
+                select.options[select.options.length] = new Option('Tiệm ăn uống', 'food');
+                select.options[select.options.length] = new Option('Đồ ăn giao hàng', 'meal_delivery');
+                select.options[select.options.length] = new Option('Quán ăn', 'home_goods_store');
+                select.options[select.options.length] = new Option('Lò bánh mì', 'bakery');
+            }
+
+            $("#khoakiem").selectmenu('refresh');           // làm mới danh sách tỉnh
+        }
+
+        function onChangeKhoaKiem() {
+         
+            var kk = document.getElementById("khoakiem");
+            var key = kk.options[kk.selectedIndex].value;
+
+            if (key == 'Chọn khóa kiếm' || key == '') {
+                navigator.notification.alert('Vui lòng chọn mục cần tìm!', function () { }, 'Thông báo', 'OK');
+                return;
+            }
+
+            
+            
+            var val = $('#phamvithaydoi').slider().val().toString() + "000";
+            window.sessionStorage.setItem("phamvi", val);
+
+            var xxx = document.getElementById("searchTextFieldA").innerHTML;
+            if (!timthay && xxx.toString() == "") {
+                navigator.notification.confirm(
+               'Chưa tìm thấy vị trí hiện tại của bạn. Chúng tôi sẽ tìm kiếm tại vị trí trước đó mà tôi tìm được, bạn có muốn tiếp tục?',
+               function (buttonIndex) { if (buttonIndex == 2) { var url = "category-results.html#" + latitude + "@" + longitude + "$" + key; window.location.assign(url); } },
+               'Chưa tìm thấy vị trí',
+               'Thôi,Tiếp tục'
+           );
+            }
+
+            var url = "category-results.html#" + latitude + "@" + longitude + "$" + key; window.location.assign(url);
+        }
+    </script>
+</head>
+<body>
+    <div data-role="page" class="type-interior">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>DANH MỤC</b></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a href="about.html" data-ajax="false" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+            <div data-role="header" data-theme="a" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+                <div class="ui-block-a" style="width: 70%; padding-top: 4px; padding-left: 5px">
+                    <input placeholder="Gõ từ khóa tìm kiếm" type="search" data-theme="d" name="search-mini" id="search-mini" data-mini="true" />
+                </div>
+                <div class="ui-block-b" style="width: 30%;">
+                    <div>
+                        <button onclick="findKeywords()" data-theme="b">Tìm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Header -->
+
+        <div data-role="header" data-theme="d" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+            <div class="ui-block-a" style="width: 80%; padding-top: 4px; padding-left: 5px">
+                <input id="searchTextFieldA" placeholder="Nhập vị trí cần tìm" type="search" data-theme="d" name="search-mini" data-mini="true" onfocus="withChange()" onkeypress="withChange()" />
+            </div>
+            <div class="ui-block-b" style="width: 20%;">
+                <div>
+                    <button type="submit" data-theme="b" onclick="findKeywords('1')">Tìm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Content -->
+        <div>
+            <p id="geolocation" style="margin: 10px;">Đang dò tìm vị trí của bạn...</p>
+            <div class="ntc-content" style="overflow: hidden;">
+                <fieldset data-role="controlgroup">
+                    <legend></legend>
+                    <label for="danhmuc" class="select">Danh mục</label>
+                    <select name="danhmuc" id="danhmuc" data-theme="e" data-native-menu="false">
+                        <option>Chọn danh mục</option>
+                        <option value="dichvu">Dịch vụ</option>
+                        <option value="giaoduc">Giáo dục</option>
+                        <option value="giaitri">Giải trí</option>
+                        <option value="muasam">Mua sắm</option>
+                        <option value="cqtc">Cơ quan - Tổ chức</option>
+                        <option value="yte">Y tế</option>
+                        <option value="amthuc">Ẩm thực</option>
+                        <option value="khac">Khác</option>
+                    </select>
+                    <label for="khoakiem" class="khoakiem">Chọn khóa kiếm:</label>
+                    <select name="khoakiem" id="khoakiem" data-theme="e" data-native-menu="false">
+                        <option>Chọn khóa kiếm</option>
+                    </select>
+                </fieldset>
+            </div>
+            <input id="phamvithaydoi" type="range" name="slider-fill" id="slider-fill" value="5" min="1" max="8" data-highlight="true" style="" />
+            <!-- End Content -->
+            <br />
+        </div>
+
+        <br />
+        <button type="submit" data-theme="f" onclick="onChangeKhoaKiem()">Tìm</button>
+    </div>
+
+    <div id="map-canvas" style="visibility: hidden;"></div>
+
+    <script type="text/javascript">
+        $('#danhmuc').bind("change", function (event, ui) {
+            onChangeDanhMuc();
+        });
+
+
+        function initializeA() {
+            var mapOptions = { center: new google.maps.LatLng(latitude, longitude), zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP };
+            var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+            var inputA = document.getElementById('searchTextFieldA');
+            var autocomplete = new google.maps.places.Autocomplete(inputA);
+
+            autocomplete.bindTo('bounds', map);
+
+            google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                inputA.className = '';
+                var place = autocomplete.getPlace();
+                if (!place.geometry) { // Inform the user that the place was not found and return.
+                    inputA.className = 'notfound';
+                    return;
+                }
+                else {
+                    $('#searchTextFieldA').addClass('ui-input-text ui-body-d');
+                    var nameA = document.getElementById('vitribatdau');
+                    latitude = place.geometry.location.lat();
+                    longitude = place.geometry.location.lng();
+                }
+            });
+        }
+
+        function withChange() {
+            $('.pac-container').width('10000px');
+            $('.pac-container').css("margin-left", "-33px");
+        }
+
+        google.maps.event.addDomListener(window, 'load', initializeA);
+    </script>
+</body>
+</html>

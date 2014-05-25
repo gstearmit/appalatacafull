@@ -1,0 +1,368 @@
+﻿<html>
+<head>
+    <title>Wikilookup</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="SQLitePlugin.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi?key=AIzaSyAv9eLBwnLgRG2QfwOJvLUBwRrtw1sGTtc"></script>
+    <script type="text/javascript">
+        google.load("feeds", "1");
+    </script>
+</head>
+<body>
+    <div data-role="page" class="type-interior" style="overflow: hidden; visibility: visible">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;" id="tenbao"></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <iframe id="fullnews" style="width: 100%; height: 100%;" src="#"></iframe>
+        <div id="maincontent"></div>
+        <div id="loading" style="margin:auto; width:100px; margin-top:50px;"><img src="img\loading.gif" /></div>
+        <!-- End Content -->
+
+        <!-- Start Footer -->
+        <div data-role="footer" data-id="foo1" data-position="fixed" id="typenews">
+            <ul id="listtypenews"></ul>
+        </div>
+        <!-- CSS cho thanh các phân loại tin tức của từng đầu báo - Start -->
+        <style>
+            .ui-bar-a a.ui-link {
+                color: white;
+                font-size: 13px;
+            }
+
+            #typenews ul {
+                width: 100%;
+                white-space: nowrap;
+                overflow-x: scroll;
+                line-height: 2em;
+            }
+
+                #typenews ul a {
+                    text-decoration: none;
+                    border-left: groove gray;
+                    margin-left: -5px;
+                    padding: 10px 20px 7px 15px;
+                }
+
+                #typenews ul li {
+                    display: inline-block;
+                }
+
+            .ui-bar-a a.ui-link:hover {
+                color: yellow;
+            }
+
+            img {
+                float: left;
+                border: 1px solid #ddd;
+                padding: 5px;
+                margin-top: 4px;
+                margin-right: 4px;
+                background: #808080;
+            }
+
+            .ui-body:hover {
+                height: auto;
+                background: rgb(27, 150, 247);
+                color: white;
+                text-shadow: none;
+                text-decoration-line: none;
+            }
+
+            .ui-body a {
+                visibility: hidden;
+            }
+
+            .ui-body img {
+                visibility: visible;
+            }
+        </style>
+        <!-- CSS cho thanh các phân loại tin tức của từng đầu báo - End   -->
+
+        <!-- JS các phân loại tin tức của từng đầu báo - Start -->
+        <script>
+            $('#fullnews').hide();
+
+            var db;                                             // Database variable
+            var nameNews = sessionStorage.getItem('NewsName');  // NewsName - Will get from storage
+            var typeNewsChange = "";                            // TypeNews để lưu truy vấn
+            var currentId = -1;                                 // TypeNews id number
+
+            // Đưa tên báo lên
+            $('#tenbao').append(nameNews).trigger("create");
+
+            // Wait for Cordova to load
+            document.addEventListener("deviceready", onDeviceReady, false);
+
+            // Cordova is ready
+            function onDeviceReady() {
+                db = window.sqlitePlugin.openDatabase('wikilookup', '1.0', 'wikilookup', 20000);
+                db.transaction(queryTypeNewsDB, errorCB);
+            }
+
+            // SQL01 Query database ---------------------------------------------------------------------------------------------------------------------------------\\
+            // Query the database get NameNews infomations
+            function queryTypeNewsDB(tx) {
+                tx.executeSql('SELECT DISTINCT TypeNews FROM tb_News WHERE NameNews = "' + nameNews + '"', [], queryTypeNewsSuccess, errorCB);
+            }
+
+            // Query the database get Rss infomations
+            function queryRssDB(tx) {
+                tx.executeSql('SELECT Rss FROM tb_News WHERE NameNews = "' + nameNews + '" and TypeNews = "' + typeNewsChange + '"', [], queryRssSuccess, errorCB);
+            }
+            // SQL01 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+
+            // SQL02 Query database callback ------------------------------------------------------------------------------------------------------------------------\\
+            // Query the database get NameNews infomations callback
+            function queryTypeNewsSuccess(tx, results) {
+                var len = results.rows.length;
+                for (var i = 0; i < len; i++) {
+                    var typeNews = results.rows.item(i).TypeNews;
+                    var strAdd = '<a id="typenews-' + i + '"'
+                        + ' onclick="detailsTypeNews(' + i + ",'" + typeNews
+                        + "'" + ')">' + typeNews + "</a>";
+                    $('#listtypenews').append(strAdd).trigger("create");
+                }
+
+                $('#loading').hide();
+                detailsTypeNews(0, results.rows.item(0).TypeNews);
+            }
+
+            // Query the database get Rss infomations callback
+            function queryRssSuccess(tx, results) {
+                var len = results.rows.length;
+                for (var i = 0; i < len; i++) {
+                    var rss = results.rows.item(i).Rss;
+
+                    if (nameNews != 'Tuổi Trẻ') {
+                        getNewsByGoogleAPIs(rss);
+                        return; // Tạm dừng cách sử dụng jQuery
+                    }
+
+                    // Cách lấy tin bằng jQuery --------------------------------------------------------------- Start -
+                    $.get(rss, function (data) {
+                        var $xml = $(data);
+                        var listSqlStr = new Array();
+                        var count = 0;
+
+                        // Lấy các item trong RSS kết quả xổ số
+                        var j = 1;
+                        var strPubDate = "pubDate";
+                        if(nameNews == 'Tuổi Trẻ') strPubDate = "pubdate";
+
+                        $xml.find("item").each(function () {
+                            var $this = $(this),
+                                item = {
+                                    title: $this.find("title").text(),
+                                    description: $this.find("description").text(),
+                                    link: $this.find("link").text(),
+                                    pubDate: $this.find(strPubDate).text()
+                                }
+
+                            // Add title
+                            var titleTemp = '<ul data-role="listview" data-theme="d" data-divider-theme="d">'
+                                            + '<li data-role="list-divider" onclick="gotoFullNews(' + "'"
+                                            + item.link + "'"
+                                            + ')" style="text-decoration: none; text-decoration-color: green">'
+                                            + item.title + '<span class="ui-li-count">' + (j++) + '</span>'
+                                            + '</li></ul>';
+                            $('#maincontent-' + currentId).append(titleTemp).trigger("create");
+
+                            // Add time
+                            if (item.pubDate != null || item.pubDate != '') {
+                                var timeTemp = '<em style="float: right">'
+                                                + normalizationDateTime(item.pubDate)
+                                                + '</em><br />';
+                                $('#maincontent-' + currentId).append(timeTemp).trigger("create");
+                            }
+                            // Add description
+                            var descriptionTemp = '<div class="ui-body ui-body-c" style="text-align: justify" onclick="gotoFullNews(' + "'"
+                                                    + item.link + "'" + ')" >'
+                                                    + normalizationNewsDetail(item.description)
+                                                    + '</div>';
+                            $('#maincontent-' + currentId).append(descriptionTemp).trigger("create");
+                        });
+                    });
+                    $('#loading').hide();
+                    // Cách lấy tin bằng jQuery --------------------------------------------------------------- End  -
+                }
+            }
+            // SQL02 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+
+            // SQL03 Others------------------------------------------------------------------------------------------------------------------------------------------\\
+            // Transaction error callback
+            function errorCB(err) { console.log("Error processing SQL: " + err); }
+
+            function alertDismissed() { }
+
+            function addNewsContent(data) { $('#news-content').append(data); }
+
+            function detailsTypeNews(id, typeNews) {
+                $('#loading').show();
+                $('#fullnews').hide();
+                $('#maincontent').show();
+
+                if (id == currentId) return;    // Stop 
+
+                // Xóa active cho tab củ, tạo active cho tab mới
+                $("#typenews-" + currentId).removeClass("ui-btn-active ui-state-persist");
+                $("#typenews-" + id).addClass("ui-btn-active ui-state-persist");
+
+                var nextId = id + 1;
+                var oldNextId = currentId + 1;
+
+                // Tạo lại border cho tab củ, xóa bỏ border cho tab mới
+                $("#typenews #typenews-" + nextId).css("border-left", "none");
+                $("#typenews #typenews-" + oldNextId).css("border-left", "groove gray");
+
+                // Ẩn nội dung củ
+                $('#maincontent-' + currentId).hide();
+                // Hiện nội dung mới
+                try {
+                    if (document.getElementById('maincontent-' + id).innerHTML.length > 10) {
+                        $('#maincontent-' + id).show();
+                        currentId = id;
+                        $('#loading').hide();
+                        return;
+                    }
+                } catch (e) { }
+
+                // Tạo div mới để tiến hành thêm nội dung cho phân mục đầu báo
+                var strMainContent = '<div id="maincontent-' + id + '"></div>';
+                $('#maincontent').append(strMainContent).trigger("create");
+
+                // Cập nhật và truy vấn dữ liệu mới
+                currentId = id;
+                typeNewsChange = typeNews;
+                db.transaction(queryRssDB, errorCB);
+            }
+
+            // Chuẩn hóa chuổi thời gian sang tiếng việt
+            function normalizationDateTime(strDateTime) {
+                var result = strDateTime + '';
+                // Thay đổi thứ trong tuần
+                result = result.replace('Sun', 'C. Nhật');
+                result = result.replace('Mon', 'Thứ 2');
+                result = result.replace('Tue', 'Thứ 3');
+                result = result.replace('Wed', 'Thứ 4');
+                result = result.replace('Thu', 'Thứ 5');
+                result = result.replace('Fri', 'Thứ 6');
+                result = result.replace('Sat', 'Thứ 7');
+
+                // Thay đổi tháng trong nắm
+                result = result.replace('Jan', 'Tháng 1,');
+                result = result.replace('Feb', 'Tháng 2,');
+                result = result.replace('Mar', 'Tháng 3,');
+                result = result.replace('Apr', 'Tháng 4,');
+                result = result.replace('May', 'Tháng 5,');
+                result = result.replace('Jun', 'Tháng 6,');
+                result = result.replace('Jul', 'Tháng 7,');
+                result = result.replace('Aug', 'Tháng 8,');
+                result = result.replace('Sep', 'Tháng 9,');
+                result = result.replace('Oct', 'Tháng 10,');
+                result = result.replace('Nov', 'Tháng 11,');
+                result = result.replace('Dec', 'Tháng 12,');
+
+                // Loại bỏ chuổi thừa
+                result = result.replace('GMT', '');
+                result = result.replace('+0700', '');
+                result = result.replace('-0700', '');
+                return result;
+            }
+
+            // Chuẩn hóa nội dung tin tức
+            function normalizationNewsDetail(strNews) {
+                var result = strNews + "";
+                //result = result.replace("<a ", "<h ");
+                //result = result.replace("</a>", "</h>");
+                //result = result.replace("<A ", "<h ");
+                //result = result.replace("</A>", "</h>");
+                result = result.replace("href", "atrb");
+                //result = result.replace(">/<", "><");
+                result = result.replace(">> ", ">");
+
+                if (nameNews == 'Thanh Niên') {
+                    result = result.replace('src="', 'src="http://www.thanhnien.com.vn');
+                }
+                return result;
+            }
+
+            // Open in new iFrame
+            function gotoFullNews(src) {
+                $('#fullnews').show();
+                $('#maincontent').hide();
+                document.getElementById('fullnews').src = src;
+            }
+            // SQL03 ------------------------------------------------------------------------------------------------------------------------------------------------\\
+        </script>
+        <!-- JS các phân loại tin tức của từng đầu báo - End   -->
+
+        <!-- JS Fuctions with Google APIs - Start- -->
+        <script>
+            function getNewsByGoogleAPIs(rssPath) {
+                var feed = new google.feeds.Feed(rssPath);
+                feed.setNumEntries(100);
+                feed.load(function (result) {
+                    if (!result.error) {
+                        for (var i = 0; i < result.feed.entries.length; i++) {
+                            var entry = result.feed.entries[i];
+
+                            // Add title
+                            var titleTemp = '<ul data-role="listview" data-theme="d" data-divider-theme="d">'
+                                            + '<li data-role="list-divider" onclick="gotoFullNews(' + "'"
+                                            + entry.link + "'"
+                                            + ')" style="text-decoration: none; text-decoration-color: green">'
+                                            + entry.title + '<span class="ui-li-count">' + (i+1) + '</span>'
+                                            + '</li></ul>';
+                            $('#maincontent-' + currentId).append(titleTemp).trigger("create");
+
+                            // Add time
+                            if (entry.publishedDate != null || entry.publishedDate != '') {
+                                var timeTemp = '<em style="float: right">'
+                                                + normalizationDateTime(entry.publishedDate)
+                                                + '</em><br />';
+                                $('#maincontent-' + currentId).append(timeTemp).trigger("create");
+                            }
+
+                            // Add description
+                            var descriptionTemp = '<div class="ui-body ui-body-c" style="text-align: justify" onclick="gotoFullNews(' + "'"
+                                                    + entry.link + "'" + ')" >'
+                                                    + normalizationNewsDetail(entry.content)
+                                                    + '</div>';
+                            $('#maincontent-' + currentId).append(descriptionTemp).trigger("create");
+                        }
+                        $('#loading').hide();
+                    } else {
+                        // Đưa thông báo không có dữ liệu tại đây
+                        alert('Không tìm thấy dữ liệu!');
+                        $('#loading').hide();
+                    }
+                });
+            }
+            // Kết thúc thử nghiệm
+        </script>
+        <!-- JS Fuctions with Google APIs - End  - -->
+        <!-- End Footer -->
+    </div>
+</body>
+</html>
