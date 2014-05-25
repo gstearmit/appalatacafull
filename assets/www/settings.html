@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        function onStartPage() {
+            var ftwCayXang = window.localStorage.getItem('ftwCayXang');
+            var ftwATM = window.localStorage.getItem('ftwATM');
+            var ftwXeBuyt = window.localStorage.getItem('ftwXeBuyt');
+            var ftwTruongHoc = window.localStorage.getItem('ftwTruongHoc');
+            var ftwNganHang = window.localStorage.getItem('ftwNganHang');
+            var ftwBenhVien = window.localStorage.getItem('ftwBenhVien');
+            var ftwNhaHang = window.localStorage.getItem('ftwNhaHang');
+            var ftwCafe = window.localStorage.getItem('ftwCafe');
+            var ftwCuaHang = window.localStorage.getItem('ftwCuaHang');
+
+            var ftwCongVienXanh = window.localStorage.getItem('ftwCongVienXanh');
+            var ftwTruongdhcd = window.localStorage.getItem('ftwTruongdhcd');
+            var ftwSieuThi = window.localStorage.getItem('ftwSieuThi');
+            var ftwNhaTho = window.localStorage.getItem('ftwNhaTho');
+            var ftwSanVanDong = window.localStorage.getItem('ftwSanVanDong');
+            var ftwBar = window.localStorage.getItem('ftwBar');
+            var ftwNhaSi = window.localStorage.getItem('ftwNhaSi');
+
+
+            $('#cayxang').val('on').slider("refresh");
+            $('#atm').val('on').slider("refresh");
+            $('#xebuyt').val('on').slider("refresh");
+            $('#truonghoc').val('on').slider("refresh");
+            $('#nganhang').val('on').slider("refresh");
+            $('#benhvien').val('on').slider("refresh");
+            $('#nhahang').val('on').slider("refresh");
+            $('#cafe').val('on').slider("refresh");
+            $('#cuahang').val('on').slider("refresh");
+
+            if (ftwCayXang == 'off') $('#cayxang').val('off').slider("refresh");
+            if (ftwATM == 'off') $('#atm').val('off').slider("refresh");
+            if (ftwXeBuyt == 'off') $('#xebuyt').val('off').slider("refresh");
+            if (ftwTruongHoc == 'off') $('#truonghoc').val('off').slider("refresh");
+            if (ftwNganHang == 'off') $('#nganhang').val('off').slider("refresh");
+            if (ftwBenhVien == 'off') $('#benhvien').val('off').slider("refresh");
+            if (ftwNhaHang == 'off') $('#nhahang').val('off').slider("refresh");
+            if (ftwCafe == 'off') $('#cafe').val('off').slider("refresh");
+            if (ftwCuaHang == 'off') $('#cuahang').val('off').slider("refresh");
+
+            if (ftwCongVienXanh == 'on') $('#congvienxanh').val('on').slider("refresh");
+            if (ftwTruongdhcd == 'on') $('#truongdhcd').val('on').slider("refresh");
+            if (ftwSieuThi == 'on') $('#sieuthi').val('on').slider("refresh");
+            if (ftwNhaTho == 'on') $('#nhatho').val('on').slider("refresh");
+            if (ftwSanVanDong == 'on') $('#sanvandong').val('on').slider("refresh");
+            if (ftwBar == 'on') $('#bar').val('on').slider("refresh");
+            if (ftwNhaSi == 'on') $('#nhasi').val('on').slider("refresh");
+
+
+            $('#cayxang').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwCayXang", 'on');
+                else
+                    window.localStorage.setItem("ftwCayXang", 'off');
+            });
+            $('#atm').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwATM", 'on');
+                else
+                    window.localStorage.setItem("ftwATM", 'off');
+            });
+            $('#xebuyt').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwXeBuyt", 'on');
+                else
+                    window.localStorage.setItem("ftwXeBuyt", 'off');
+            });
+            $('#truonghoc').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwTruongHoc", 'on');
+                else
+                    window.localStorage.setItem("ftwTruongHoc", 'off');
+            });
+            $('#nganhang').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwNganHang", 'on');
+                else
+                    window.localStorage.setItem("ftwNganHang", 'off');
+            });
+            $('#benhvien').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwBenhVien", 'on');
+                else
+                    window.localStorage.setItem("ftwBenhVien", 'off');
+            });
+            $('#nhahang').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwNhaHang", 'on');
+                else
+                    window.localStorage.setItem("ftwNhaHang", 'off');
+            });
+            $('#cafe').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwCafe", 'on');
+                else
+                    window.localStorage.setItem("ftwCafe", 'off');
+            });
+            $('#cuahang').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwCuaHang", 'on');
+                else
+                    window.localStorage.setItem("ftwCuaHang", 'off');
+            });
+
+            $('#congvienxanh').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwCongVienXanh", 'on');
+                else
+                    window.localStorage.setItem("ftwCongVienXanh", 'off');
+            });
+            $('#truongdhcd').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwTruongdhcd", 'on');
+                else
+                    window.localStorage.setItem("ftwTruongdhcd", 'off');
+            });
+            $('#sieuthi').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwSieuThi", 'on');
+                else
+                    window.localStorage.setItem("ftwSieuThi", 'off');
+            });
+            $('#nhatho').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwNhaTho", 'on');
+                else
+                    window.localStorage.setItem("ftwNhaTho", 'off');
+            });
+            $('#sanvandong').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwSanVanDong", 'on');
+                else
+                    window.localStorage.setItem("ftwSanVanDong", 'off');
+            });
+            $('#bar').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwBar", 'on');
+                else
+                    window.localStorage.setItem("ftwBar", 'off');
+            });
+            $('#nhasi').change(function () {
+                var myswitch = $(this);
+                var show = myswitch[0].selectedIndex == 1 ? true : false;
+                if (show)
+                    window.localStorage.setItem("ftwNhaSi", 'on');
+                else
+                    window.localStorage.setItem("ftwNhaSi", 'off');
+            });
+        }
+    </script>
+</head>
+<body onload="onStartPage()">
+    <div data-role="page" class="type-interior" style="overflow: hidden;">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>TÌM NHANH</b></h1>
+            <a href="start.html" data-ajax="false" data-transition="slide" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a data-ajax="false" href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <ul data-role="listview" data-theme="d" data-divider-theme="d">
+            <li data-role="list-divider">Tìm nhanh địa điểm</li>
+
+
+
+
+
+
+
+
+
+
+
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Cây xăng, trạm xăng dầu</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="cayxang" id="cayxang" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Máy ATM</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="atm" id="atm" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Trạm xe buýt</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="xebuyt" id="xebuyt" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Trường học</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="truonghoc" id="truonghoc" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Ngân hàng</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="nganhang" id="nganhang" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Bệnh viện</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="benhvien" id="benhvien" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Nhà hàng ăn uống</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="nhahang" id="nhahang" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Quán cafe</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="cafe" id="cafe" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Cửa hàng tạp hóa</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="cuahang" id="cuahang" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Công viên xanh</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="congvienxanh" id="congvienxanh" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Trường ĐH - CĐ</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="truongdhcd" id="truongdhcd" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Siêu thị</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="sieuthi" id="sieuthi" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Nhà thờ</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="nhatho" id="nhatho" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Sân vận động</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="sanvandong" id="sanvandong" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Quán Bar</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="bar" id="bar" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div data-role="header" data-theme="none" class="ui-bar ui-grid-a" style="margin: -15px; margin-bottom: -12px;">
+                    <div class="ui-block-a" style="margin-left: 5px; margin-top: 9px; font-size: 80%;">Nha sĩ</div>
+                    <div class="ui-block-b" style="width: 80px; float: right; margin-right: -10px;">
+                        <select name="nhasi" id="nhasi" data-role="slider" data-mini="true" style="float: right;">
+                            <option value="off">Tắt</option>
+                            <option value="on">Mở</option>
+                        </select>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <!-- End Content -->
+
+        <!-- Start Footer -->
+        <div data-role="footer" data-position="fixed">
+            <div data-role="navbar" data-iconpos="right">
+                <ul>
+                    <li><a data-ajax="false" href="index.html" data-transition="none" data-icon="grid">Địa điểm</a></li>
+                    <li><a data-ajax="false" href="lookup.html" data-transition="none" data-icon="search">Tra cứu</a></li>
+                    <li><a data-ajax="false" href="settings.html" data-transition="none" data-icon="gear" class="ui-btn-active ui-state-persist">Cài đặt</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- End Footer -->
+    </div>
+</body>
+</html>

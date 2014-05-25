@@ -1,0 +1,307 @@
+﻿<html>
+<head>
+	<title>Wikilookup</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+	<!-- jQuery references -->
+	<link href="css/themes/default/jquery.mobile-1.2.0.min.css"	rel="stylesheet" />
+	<link href="css/jqm-docs.css" rel="stylesheet" />
+	<script src="js/jquery.js"></script>
+	<script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+	<!-- Wikilookup references -->
+	<link rel="stylesheet" type="text/css" href="css/index.css" />
+	<script type="text/javascript" src="js/index.js"></script>
+	
+	<!-- PhoneGap references -->
+	<script type="text/javascript" src="cordova-2.5.0.js"></script>
+	
+	<script type="text/javascript" charset="utf-8">
+		var latitude = window.localStorage.getItem('latitude');
+		var longitude = window.localStorage.getItem('longitude');
+		if (latitude == null)
+		{
+		    latitude = 10.8230989;      // Khởi tọa vĩ độ ban đầu
+		    longitude = 106.6296638;    // Khởi tạo kinh độ ban đầu
+		    window.localStorage.setItem('info', 'null');
+		}
+				
+		var timthay = false;			// Vị trí điện thoại tìm thấy hay không?
+		
+		// Wait for Cordova to load
+		document.addEventListener("deviceready", onDeviceReady, false);
+	
+		// Cordova is ready
+		function onDeviceReady() {
+			navigator.splashscreen.hide();      // Ẩn spash sau khi khởi động xong
+			var options = { timeout: 3000 };    // Chu kỳ theo dỏi vị trí là 3s
+			watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+			// document.addEventListener("backbutton", onBackKeyDown, false);
+		}
+		
+		function onSuccess(position) {
+			latitude = position.coords.latitude;
+			longitude = position.coords.longitude;
+			window.localStorage.setItem('latitude', latitude);      // Lưu giữ vị trí củ vĩ độ
+			window.localStorage.setItem('longitude', longitude);    // Lưu giữ vị trí củ kinh độ
+
+			var now = new Date();
+			window.localStorage.setItem('info', 'Vị trí của bạn tìm thấy lúc: ' + now.toString());
+			timthay = true;
+		}
+		function onError(error) {}
+		
+		// Hàm tìm theo từ khóa
+		function findKeywords(){
+		    var key = document.getElementById('search-mini').value;
+		    if(!key)return;
+		    for (i = 0; i < key.length; i++) key = key.replace(' ', '%20');
+			window.location.assign("results.html#"+latitude+"@"+longitude+"$"+key);
+		}
+		
+		function gotoMapViews(key){
+		    if (navigator.network.connection.type == Connection.NONE ) { // ||navigator.network.connection.type == Connection.UNKNOWN
+		        $('#nointernet').trigger('click');
+		         return;
+			}
+			 
+			if(!timthay){
+				navigator.notification.confirm(
+			            'Chưa tìm thấy vị trí hiện tại của bạn. Chúng tôi sẽ tìm kiếm tại vị trí trước đó mà tôi tìm được, bạn có muốn tiếp tục?',
+			            function(buttonIndex) {if(buttonIndex==2){window.location.assign("mapviews.html#"+latitude+"@"+longitude+"$"+key);}},
+			            'Chưa tìm thấy vị trí',
+			            'Thôi,Tiếp tục'
+			        );
+			} else{window.location.assign("mapviews.html#"+latitude+"@"+longitude+"$"+key);}
+		}
+		 $('.ntc-chucnang.ui-btn-active').removeClass('ui-btn-active');
+	</script>
+	<style type="text/css">
+.nav-glyphish .ui-btn .ui-btn-inner {
+	padding-top: 80px !important;
+}
+.nav-glyphish .ui-btn .ui-icon {
+	width: 80px !important;
+	height: 80px !important;
+	margin-left: -40px !important;
+	box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	-webkit-box-shadow: none !important;
+	-webkit-border-radius: 0 !important;
+	border-radius: 0 !important;
+}
+#vitri .ui-icon {
+	background: url(img/place.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#danhmuc .ui-icon {
+	background: url(img/catalog.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#cuahang .ui-icon {
+	background: url(img/store.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#chiduong .ui-icon {
+	background: url(img/around.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#atm .ui-icon {
+	background: url(img/atm.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#nganhang .ui-icon {
+	background: url(img/bank.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#cafe .ui-icon {
+	background: url(img/cafe.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#nhahang .ui-icon {
+	background: url(img/restaurant.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#cayxang .ui-icon {
+	background: url(img/gasstation.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#xebuyt .ui-icon {
+	background: url(img/busstation.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#truonghoc .ui-icon {
+	background: url(img/school.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#benhvien .ui-icon {
+	background: url(img/hospital.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#congvienxanh .ui-icon {
+	background: url(img/park.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#truongdhcd .ui-icon {
+	background: url(img/university.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#sieuthi .ui-icon {
+	background: url(img/supermarket.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#nhatho .ui-icon {
+	background: url(img/church.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#sanvandong .ui-icon {
+	background: url(img/stadium.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#bar .ui-icon {
+	background: url(img/bar.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+#nhasi .ui-icon {
+	background: url(img/dentist.png) 50% 50% no-repeat;
+	background-size: 60px 60px;
+}
+
+.ntc-chucnang.ui-btn-active {
+    border: 1px solid #f4c63f;
+    background: #fadb4e;
+    font-weight: bold;
+    color: #222;
+    text-shadow: 0 1px 0 #fff;
+    background-image: -webkit-gradient(linear,left top,left bottom,from( #ffefaa ),to( #ffe155 ));
+    background-image: -webkit-linear-gradient( #ffefaa,#ffe155 );
+    background-image: -moz-linear-gradient( #ffefaa,#ffe155 );
+    background-image: -ms-linear-gradient( #ffefaa,#ffe155 );
+    background-image: -o-linear-gradient( #ffefaa,#ffe155 );
+    background-image: linear-gradient( #ffefaa,#ffe155 );
+}
+</style>
+</head>
+<body>
+<div data-role="page" class="type-interior">
+	<!-- Start Header -->
+	<div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+		<h1 style="text-transform: capitalize;"><b>TÌM NHANH</b></h1>
+		<!--<a onclick="$('#closeapp').trigger('click');" data-icon="delete" data-iconpos="notext" data-direction="reverse">Home</a>-->
+        <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+		<a href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+		<div data-role="header" data-theme="a" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+			<div class="ui-block-a" style="width: 70%; padding-top: 4px; padding-left: 5px">
+				<input placeholder="Bạn muốn tìm gì?" type="search" data-theme="d" name="search-mini" id="search-mini" data-mini="true" />
+			</div>
+			<div class="ui-block-b" style="width: 30%;"><div><button type="submit" data-theme="b" onclick="findKeywords()">Tìm</button></div></div>
+		</div>
+	</div>
+	<!-- End Header -->
+
+	<!-- Start Content -->
+	<div class="ntc-content" style="text-transform: none; overflow: hidden;">
+		<!-- Main Functions -->		
+		<div data-role="header" data-id="foo1" data-theme="e" class="nav-glyphish">
+			<div data-role="navbar" class="nav-glyphish">
+				<ul>
+					<li><a data-ajax="false" href="location.html" class="ntc-chucnang2" id="vitri" data-icon="custom">Vị trí</a></li>
+					<li><a data-ajax="false" href="category.html" class="ntc-chucnang2" id="danhmuc" data-icon="custom">Danh mục</a></li>
+					<li><a data-ajax="false" data-transition="none" href="directions.html" class="ntc-chucnang2" id="chiduong" data-icon="custom">Chỉ đường</a></li>
+				</ul>
+			</div>
+		</div>
+		
+		<!-- Code for next value -->
+		<script type="text/javascript">
+		// Default on 
+		var cayxang =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'gas_station'" + ')" class="ntc-chucnang" id="cayxang" data-icon="custom">Cây xăng</a></li>';
+		var atm =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'atm'" + ')" class="ntc-chucnang" id="atm" data-icon="custom">ATM</a></li>';
+		var xebuyt =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'bus_station'" + ')" class="ntc-chucnang" id="xebuyt" data-icon="custom">Xe buýt</a></li>';
+		xebuyt =  '<li><a href="saigonbus.html" data-ajax="false" class="ntc-chucnang" id="xebuyt" data-icon="custom">Xe buýt</a></li>';
+		var truonghoc =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'school'" + ')" class="ntc-chucnang" id="truonghoc" data-icon="custom">Trường học</a></li>';
+		var nganhang =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'bank'" + ')" class="ntc-chucnang" id="nganhang" data-icon="custom">Ngân hàng</a></li>';
+		var benhvien =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'hospital'" + ')" class="ntc-chucnang" id="benhvien" data-icon="custom">Bệnh viện</a></li>';
+		var nhahang =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'restaurant'" + ')" class="ntc-chucnang" id="nhahang" data-icon="custom">Nhà hàng</a></li>';
+		var cafe =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'cafe'" + ')" class="ntc-chucnang" id="cafe" data-icon="custom">Cafe</a></li>';
+		var cuahang =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'store'" + ')" class="ntc-chucnang" id="cuahang" data-icon="custom">Cửa hàng</a></li>';
+		
+		// Default off
+		var congvienxanh =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'park'" + ')" class="ntc-chucnang" id="congvienxanh" data-icon="custom">Công viên</a></li>';
+		var truongdhcd =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'university'" + ')" class="ntc-chucnang" id="truongdhcd" data-icon="custom">ĐH - CĐ</a></li>';
+		var sieuthi =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'grocery_or_supermarket'" + ')" class="ntc-chucnang" id="sieuthi" data-icon="custom">Siêu thị</a></li>';
+		var nhatho =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'church'" + ')" class="ntc-chucnang" id="nhatho" data-icon="custom">Nhà thờ</a></li>';
+		var sanvandong =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'stadium'" + ')" class="ntc-chucnang" id="sanvandong" data-icon="custom">Sân vận động</a></li>';
+		var bar =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'bar'" + ')" class="ntc-chucnang" id="bar" data-icon="custom">Bar</a></li>';
+		var nhasi =  '<li><a href="#" data-ajax="false" onclick="gotoMapViews(' + "'dentist'" + ')" class="ntc-chucnang" id="nhasi" data-icon="custom">Nha sĩ</a></li>';
+				
+		var dau = '<div data-role="header" data-id="foo1" class="remove" data-theme="e" class="nav-glyphish"><div data-role="navbar" class="nav-glyphish"><ul>';
+		var cuoi ='</ul></div></div>';
+
+        // Get all data from local storage
+        var ftwCayXang = window.localStorage.getItem('ftwCayXang');
+    	var ftwATM = window.localStorage.getItem('ftwATM');
+    	var ftwXeBuyt = window.localStorage.getItem('ftwXeBuyt');
+    	var ftwTruongHoc = window.localStorage.getItem('ftwTruongHoc');
+    	var ftwNganHang = window.localStorage.getItem('ftwNganHang');
+    	var ftwBenhVien = window.localStorage.getItem('ftwBenhVien');
+    	var ftwNhaHang = window.localStorage.getItem('ftwNhaHang');
+    	var ftwCafe = window.localStorage.getItem('ftwCafe');
+    	var ftwCuaHang = window.localStorage.getItem('ftwCuaHang');
+    	
+		var ftwCongVienXanh = window.localStorage.getItem('ftwCongVienXanh');
+		var ftwTruongdhcd = window.localStorage.getItem('ftwTruongdhcd');
+		var ftwSieuThi = window.localStorage.getItem('ftwSieuThi');
+		var ftwNhaTho = window.localStorage.getItem('ftwNhaTho');
+		var ftwSanVanDong = window.localStorage.getItem('ftwSanVanDong');
+		var ftwBar = window.localStorage.getItem('ftwBar');
+		var ftwNhaSi = window.localStorage.getItem('ftwNhaSi');
+
+		var count = 0;
+		var data = dau;
+
+		if (ftwCayXang != 'off') {data += cayxang; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwATM != 'off') {data += atm; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwXeBuyt != 'off') {data += xebuyt; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwTruongHoc != 'off') {data += truonghoc; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwNganHang != 'off') {data += nganhang; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwBenhVien != 'off') {data += benhvien; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwNhaHang != 'off') {data += nhahang; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwCafe != 'off') {data += cafe; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		if (ftwCuaHang != 'off') {data += cuahang; count++; if (count == 3){data += cuoi; document.write(data);  data = dau; count = 0;}}
+		
+		if (ftwCongVienXanh == 'on'){data += congvienxanh; count++; if (count == 3){data += cuoi; document.write(data); data = dau; count = 0;}}
+		if (ftwTruongdhcd == 'on') { data += truongdhcd; count++; if (count == 3) { data += cuoi; document.write(data); data = dau; count = 0; }}
+		if (ftwSieuThi == 'on') {data += sieuthi; count++; if (count == 3) {data += cuoi; document.write(data); data = dau; count = 0;}}
+		if (ftwNhaTho == 'on') {  data += nhatho; count++; if (count == 3) { data += cuoi; document.write(data); data = dau; count = 0;}}
+		if (ftwSanVanDong == 'on') {data += sanvandong; count++; if (count == 3) {data += cuoi; document.write(data); data = dau; count = 0;}}
+		if (ftwBar == 'on') { data += bar; count++; if (count == 3) { data += cuoi; document.write(data); data = dau; count = 0; } }
+		if (ftwNhaSi == 'on') { data += nhasi; count++; if (count == 3) {data += cuoi; document.write(data); data = dau; count = 0;}}
+
+		if (count != 0){ data += cuoi; document.write(data);} count = 0;
+		</script>
+	</div>
+	<!-- End Content -->
+	
+	<!-- Start Footer -->
+	<div data-role="footer" data-position="fixed">
+		<div data-role="navbar" data-iconpos="right">
+			<ul>
+				<li><a href="index.html" data-transition="none" data-icon="grid" class="ui-btn-active ui-state-persist">Địa điểm</a></li>
+				<li><a href="lookup.html" data-ajax="false" data-transition="none" data-icon="search">Tra cứu</a></li>
+				<li><a data-ajax="false" href="settings.html" data-transition="none" data-icon="gear">Cài đặt</a></li>
+			</ul>
+		</div>
+	</div>
+	<!-- End Footer -->
+</div>
+
+<!-- Thông báo ẩn -->
+<div style="visibility:hidden">
+    <a id="nointernet" href="dialog-nointernet.html" data-role="button" data-inline="true" data-rel="dialog" data-transition="slidedown">go go</a>
+    <a id="closeapp" href="dialog-close.html" data-role="button" data-inline="true" data-rel="dialog" data-transition="slidedown">go go</a>
+</div>
+</body>
+</html>

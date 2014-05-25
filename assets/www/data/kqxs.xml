@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ketquasoxo>
+  <mien tenmien="Miền Bắc">
+    <tinh tentinh="Phú Yên" link="http://xskt.com.vn/rss-feed/phu-yen-xspy.rss"/>
+  </mien>
+
+  <mien tenmien="Miền Trung">
+    <tinh tentinh="Quảng Ngãi" link="http://xskt.com.vn/rss-feed/quang-ngai-xsqng.rss"/>
+    <tinh tentinh="Bình Định" link="http://xskt.com.vn/rss-feed/binh-dinh-xsbdi.rss"/>
+    <tinh tentinh="Đắc Lắc" link="http://xskt.com.vn/rss-feed/dac-lac-xsdlk.rss"/>
+    <tinh tentinh="Đắc Nôg" link="http://xskt.com.vn/rss-feed/dac-nong-xsdno.rss"/>
+    <tinh tentinh="Gia Lai" link="http://xskt.com.vn/rss-feed/phu-yen-xsgl.rss"/>
+    <tinh tentinh="Khánh Hòa" link="http://xskt.com.vn/rss-feed/khanh-hoa-xskh.rss"/>
+    <tinh tentinh="Kon Tum" link="http://xskt.com.vn/rss-feed/kon-tum-xskt.rss"/>
+    <tinh tentinh="Ninh Thuận" link="http://xskt.com.vn/rss-feed/ninh-thuan-xsnt.rss"/>
+    <tinh tentinh="Quảng Bình" link="http://xskt.com.vn/rss-feed/quang-binh-xsqb.rss"/>
+    <tinh tentinh="Quảng Nam" link="http://xskt.com.vn/rss-feed/quang-nam-xsqnm.rss"/>
+    <tinh tentinh="Quảng Trị" link="http://xskt.com.vn/rss-feed/quang-tri-xsqt.rss"/>
+    <tinh tentinh="Thừa Thiên Huế" link="http://xskt.com.vn/rss-feed/thua-thien-hue-xstth.rss"/>
+    <tinh tentinh="Đà Nẵng" link="http://xskt.com.vn/rss-feed/da-nang-xsdng.rss"/>
+    <tinh tentinh="Phú Yên" link="http://xskt.com.vn/rss-feed/phu-yen-xspy.rss"/>
+  </mien>
+
+  <mien tenmien="Miền Nam">
+    <tinh tentinh="Đồng Tháp" link="http://xskt.com.vn/rss-feed/dong-thap-xsdt.rss"/>
+    <tinh tentinh="Hậu Giang" link="http://xskt.com.vn/rss-feed/hau-giang-xshg.rss"/>
+    <tinh tentinh="An Giang" link="http://xskt.com.vn/rss-feed/an-giang-xsag.rss"/>
+    <tinh tentinh="Bình Dương" link="http://xskt.com.vn/rss-feed/binh-duong-xsbd.rss"/>
+    <tinh tentinh="Bạc Liêu" link="http://xskt.com.vn/rss-feed/bac-lieu-xsbl.rss"/>
+    <tinh tentinh="Bình Phước" link="http://xskt.com.vn/rss-feed/binh-phuoc-xsbp.rss"/>
+    <tinh tentinh="Bến Tre" link="http://xskt.com.vn/rss-feed/ben-tre-xsbt.rss"/>
+    <tinh tentinh="Cà Mau" link="http://xskt.com.vn/rss-feed/ca-mau-xscm.rss"/>
+    <tinh tentinh="Cần Thơ" link="http://xskt.com.vn/rss-feed/can-tho-xsct.rss"/>
+    <tinh tentinh="Đồng Nai" link="http://xskt.com.vn/rss-feed/dong-nai-xsdn.rss"/>
+    <tinh tentinh="TP HCM" link="http://xskt.com.vn/rss-feed/tp-hcm-xshcm.rss"/>
+    <tinh tentinh="Kiên Giang" link="http://xskt.com.vn/rss-feed/kien-giang-xskg.rss"/>
+    <tinh tentinh="Long An" link="http://xskt.com.vn/rss-feed/long-an-xsla.rss"/>
+    <tinh tentinh="Lâm Đồng" link="http://xskt.com.vn/rss-feed/can-tho-xsct.rss"/>
+    <tinh tentinh="Sóc Trăng" link="http://xskt.com.vn/rss-feed/soc-trang-xsst.rss"/>
+    <tinh tentinh="Tiền Giang" link="http://xskt.com.vn/rss-feed/tien-giang-xstg.rss"/>
+    <tinh tentinh="Tây Ninh" link="http://xskt.com.vn/rss-feed/tay-ninh-xstn.rss"/>
+    <tinh tentinh="Trà Vinh" link="http://xskt.com.vn/rss-feed/tra-vinh-xstv.rss"/>
+    <tinh tentinh="Vĩnh Long" link="http://xskt.com.vn/rss-feed/vinh-long-xsvl.rss"/>
+    <tinh tentinh="Vũng Tàu" link="http://xskt.com.vn/rss-feed/vung-tau-xsvt.rss"/>
+    <tinh tentinh="Bình Thuận" link="http://xskt.com.vn/rss-feed/binh-thuan-xsbth.rss"/>
+  </mien>
+</ketquasoxo>

@@ -1,0 +1,212 @@
+﻿<html>
+<head>
+    <title>Wikilookup</title>
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&language=vi"></script>
+	<link href='css/themes/default/jquery.mobile-1.2.0.min.css'	rel='stylesheet' />
+	<style>
+	 	
+.localnav {
+	margin:0 0 20px 0;
+}
+.ui-mobile-viewport .localnav li {
+	float:left;
+}
+.localnav .ui-btn-inner { 
+	padding: .6em 10px; 
+	font-size:80%; 
+}
+
+/* custom dialog for the photos sharing */
+.ui-dialog.dialog-actionsheet .ui-dialog-contain {
+	margin-top: 0;
+}
+
+/* popup examples */
+.type-interior .ui-popup-container .ui-content { padding: 15px !important; }
+
+/* F bar theme - just for the docs overview headers */
+.ui-bar-f {
+	border: 1px solid #56A00E;
+	background: 			#74b042;
+	color: 					#fff;
+	font-weight: bold;
+	text-shadow: 0 1px 1px #335413;	
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#74b042), to(#56A00E)); /* Saf4+, Chrome */
+	background-image: -webkit-linear-gradient(#74b042, #56A00E); /* Chrome 10+, Saf5.1+ */
+	background-image:    -moz-linear-gradient(#74b042, #56A00E); /* FF3.6 */
+	background-image:     -ms-linear-gradient(#74b042, #56A00E); /* IE10 */
+	background-image:      -o-linear-gradient(#74b042, #56A00E); /* Opera 11.10+ */
+	background-image:         linear-gradient(#74b042, #56A00E);		
+}
+	</style>
+</head>
+<body>
+	<!-- Start Header -->
+	 <div data-role="header" data-theme="f" class="ntcHeader ui-header ui-bar-f ui-header-fixed slidedown" data-position="fixed" role="banner">
+        <h1 style="text-transform: capitalize;" class="ui-title" role="heading" aria-level="1"><b>CHỈ ĐƯỜNG</b></h1>
+        <a data-ajax="false" href="start.html" data-icon="home" data-iconpos="notext" data-direction="reverse" class="ui-btn-left ui-btn ui-btn-up-f ui-shadow ui-btn-corner-all ui-btn-icon-notext" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="f" title="Home"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">Home</span><span class="ui-icon ui-icon-home ui-icon-shadow">&nbsp;</span></span></a>
+        <a data-ajax="false" href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup" class="ui-btn-right ui-btn ui-btn-up-f ui-shadow ui-btn-corner-all ui-btn-icon-notext" data-corners="true" data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="f" title="About"><span class="ui-btn-inner ui-btn-corner-all"><span class="ui-btn-text">About</span><span class="ui-icon ui-icon-info ui-icon-shadow">&nbsp;</span></span></a>
+    </div>
+	<!-- End Header -->
+    <!-- Start HTML content -->
+     
+
+    <div id="dangdinhtuyen">Đang định tuyến...</div>
+	
+	<div id="maincontent" style="display:none;">
+		<div style="height:40px">*</div>
+		<div id="dir-container" onclick="hienBanDo()" style="display:none;"></div>
+    </div>
+	
+	<div id="map-container"></div>
+    <!-- End HTML content -->
+	
+<!-- Footer content -->
+	<div data-role="footer" data-id="foo1" data-position="fixed" class="ui-footer ui-bar-a ui-footer-fixed slideup" role="contentinfo">
+	<div data-role="navbar" class="ui-navbar ui-mini" role="navigation">
+		<ul class="ui-grid-a">
+			<li class="ui-block-a"><a id='hiendanhsach' onclick="hienDanhSach()"  data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-theme="a" data-inline="true" class="ui-btn ui-btn-up-a ui-btn-inline"><span class="ui-btn-inner"><span class="ui-btn-text">Hướng dẫn</span></span></a></li>
+			<li class="ui-block-b"><a id='hienbando' onclick="hienBanDo()"  data-corners="false" data-shadow="false" data-iconshadow="true" data-wrapperels="span" data-theme="a" data-inline="true" class="ui-btn ui-btn-up-a ui-btn-inline ui-btn-active"><span class="ui-btn-inner"><span class="ui-btn-text">Bản đồ</span></span></a></li>
+		</ul>
+	</div><!-- /navbar -->
+</div>
+<!-- Footer content -->
+
+	<script type="text/javascript">
+        function hienDanhSach() {
+			document.getElementById("hiendanhsach").className += " ui-btn-active";
+			document.getElementById("hienbando").className = document.getElementById("hienbando").className.replace( /(?:^|\s)ui-btn-active(?!\S)/g , '' );
+			
+			document.getElementById("maincontent").style.display = "block";
+            document.getElementById('dir-container').style.display = "block";
+            document.getElementById('map-container').style.display = "none";
+        }
+        
+        function hienBanDo() {
+			document.getElementById("hienbando").className += " ui-btn-active";
+			document.getElementById("hiendanhsach").className = document.getElementById("hiendanhsach").className.replace( /(?:^|\s)ui-btn-active(?!\S)/g , '' );
+			
+			document.getElementById("maincontent").style.display = "none";
+            document.getElementById('dir-container').style.display = "none";
+            document.getElementById('map-container').style.display = "block";
+        }
+    </script>
+    
+	<style>
+        #dangdinhtuyen {width:300px;margin:auto;}
+
+        #fixed {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 999;
+        }
+
+        .adp-summary {
+            text-align: right;
+        }
+
+        #dir-container {
+            overflow: auto;
+            padding: 2px 4px 2px 0;
+        }
+
+            #dir-container table {
+                font-size: 1em;
+                width: 100%;
+            }
+
+        #map-container {
+            overflow: hidden;
+            height: 100%;
+            margin:initial;
+        }
+
+        @media print {
+            html, body {
+                height: auto;
+            }
+
+            map-container {
+                height: 100%;
+            }
+        }
+    </style>
+
+    <script type="text/javascript">
+        var DirectionsNTC = {
+            // HTML Nodes
+            mapContainer: document.getElementById('map-container'),
+            dirContainer: document.getElementById('dir-container'),
+
+            // API Objects
+            dirService: new google.maps.DirectionsService(),
+            dirRenderer: new google.maps.DirectionsRenderer(),
+            map: null,
+
+            showDirections: function (dirResult, dirStatus) {
+                if (dirStatus != google.maps.DirectionsStatus.OK) {
+                    alert('Không thể tìm đường: ' + dirStatus);
+                    return;
+                }
+
+                var hide = document.getElementById('dangdinhtuyen').style.display = 'none';
+                // Show directions
+                DirectionsNTC.dirRenderer.setMap(DirectionsNTC.map);
+                DirectionsNTC.dirRenderer.setPanel(DirectionsNTC.dirContainer);
+                DirectionsNTC.dirRenderer.setDirections(dirResult);
+            },
+
+            getSelectedTravelMode: function () {
+                var value = sessionStorage.getItem('rad1');
+                if (value == 'driving') {
+                    value = google.maps.DirectionsTravelMode.DRIVING;
+                } else if (value == 'bicycling') {
+                    value = google.maps.DirectionsTravelMode.BICYCLING;
+                } else if (value == 'walking') {
+                    value = google.maps.DirectionsTravelMode.WALKING;
+                } else {
+                    alert('Không có tuyến đường gợi ý với loại phương tiện này!');
+                }
+                return value;
+            },
+
+            getSelectedUnitSystem: function () {
+                return sessionStorage.getItem('rad2') == 'metric' ?
+                    google.maps.DirectionsUnitSystem.METRIC :
+                    google.maps.DirectionsUnitSystem.IMPERIAL;
+            },
+
+            getDirections: function () {
+                var fromStr = sessionStorage.getItem('searchTextFieldA');
+                var toStr = sessionStorage.getItem('searchTextFieldB');
+                var dirRequest = {
+                    origin: fromStr,
+                    destination: toStr,
+                    travelMode: DirectionsNTC.getSelectedTravelMode(),
+                    unitSystem: DirectionsNTC.getSelectedUnitSystem(),
+                    provideRouteAlternatives: true
+                };
+                DirectionsNTC.dirService.route(dirRequest, DirectionsNTC.showDirections);
+            },
+
+            init: function () {
+                var latitude = window.localStorage.getItem('latitude');
+                var longitude = window.localStorage.getItem('longitude');
+                var latLng = new google.maps.LatLng(latitude, longitude);
+                DirectionsNTC.map = new google.maps.Map(DirectionsNTC.mapContainer, {
+                    zoom: 13,
+                    center: latLng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                });
+
+                // Show directions onload
+                DirectionsNTC.getDirections();
+            }
+        };
+
+        // Onload handler to fire off the app.
+        google.maps.event.addDomListener(window, 'load', DirectionsNTC.init);
+    </script>
+</body>
+</html>

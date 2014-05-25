@@ -1,0 +1,322 @@
+﻿<html>
+<head>
+    <title>Wikilookup</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&language=vi"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        var latitude = window.localStorage.getItem('latitude');
+        var longitude = window.localStorage.getItem('longitude');
+        window.localStorage.setItem('latitude', latitude);      // Lưu giữ vị trí củ vĩ độ
+        window.localStorage.setItem('longitude', longitude);    // Lưu giữ vị trí củ kinh độ
+
+        var address = "Chưa định danh được...";
+        if (latitude == null) {
+            latitude = 10.8230989;      // Khởi tọa vĩ độ ban đầu
+            longitude = 106.6296638;    // Khởi tạo kinh độ ban đầu
+            window.localStorage.setItem('info', 'null');
+        }
+
+        function chiDuong() {
+            var x1 = document.getElementsByName('radio-choice-a');
+            var sizes = x1.length;
+            for (i = 0; i < sizes; i++) {
+                if (x1[i].checked == true) {
+                    sessionStorage.setItem('rad1', x1[i].value);
+                }
+            }
+            var x2 = document.getElementsByName('radio-choice-b');
+            sizes = x2.length;
+            for (i = 0; i < sizes; i++) {
+                if (x2[i].checked == true) {
+                    sessionStorage.setItem('rad2', x2[i].value);
+                }
+            }
+
+            var sa = document.getElementById('searchTextFieldA');
+            var sb = document.getElementById('searchTextFieldB');
+
+            if (sa.value == '' || sb.value == '') {
+                alert('Vui lòng nhập vị trí chỉ dẫn!');
+                return;
+            }
+
+
+            sessionStorage.setItem('searchTextFieldA', sa.value);
+            sessionStorage.setItem('searchTextFieldB', sb.value);
+
+            //
+            var svidau = document.getElementById('vitribatdau');
+            var sdiemden = document.getElementById('diadiemden');
+
+            sessionStorage.setItem('vitribatdau', svidau.innerHTML);
+            sessionStorage.setItem('diadiemden', sdiemden.innerHTML);
+            //
+
+            window.location.assign("directions-results.html");
+        }
+
+        function onStart() {
+            if (sessionStorage.getItem('rad1') == 'driving')
+                document.getElementById('radio-choice-a').click();
+            else if (sessionStorage.getItem('rad1') == 'bicycling')
+                document.getElementById('radio-choice-c').click();
+            else
+                document.getElementById('radio-choice-b').click();
+
+            if (sessionStorage.getItem('rad2') == 'imperial')
+                document.getElementById('radio-choice-d').click();
+            else document.getElementById('radio-choice-e').click();
+
+            var sa = document.getElementById('searchTextFieldA');
+            var sb = document.getElementById('searchTextFieldB');
+            var svidau = document.getElementById('vitribatdau');
+            var sdiemden = document.getElementById('diadiemden');
+
+            sa.value = sessionStorage.getItem('searchTextFieldA');
+            sb.value = sessionStorage.getItem('searchTextFieldB');
+            svidau.innerHTML = sessionStorage.getItem('vitribatdau');
+            sdiemden.innerHTML = sessionStorage.getItem('diadiemden');
+        }
+
+        function findKeywords(id) {
+            // Lưu trữ dữ liệu lại trước khi chuyển trang -------------------------
+            var x1 = document.getElementsByName('radio-choice-a');
+            var sizes = x1.length;
+            for (i = 0; i < sizes; i++) {
+                if (x1[i].checked == true) {
+                    sessionStorage.setItem('rad1', x1[i].value);
+                }
+            }
+            var x2 = document.getElementsByName('radio-choice-b');
+            sizes = x2.length;
+            for (i = 0; i < sizes; i++) {
+                if (x2[i].checked == true) {
+                    sessionStorage.setItem('rad2', x2[i].value);
+                }
+            }
+
+            var sa = document.getElementById('searchTextFieldA');
+            var sb = document.getElementById('searchTextFieldB');
+            var svidau = document.getElementById('vitribatdau');
+            var sdiemden = document.getElementById('diadiemden');
+
+            sessionStorage.setItem('searchTextFieldA', sa.value);
+            sessionStorage.setItem('searchTextFieldB', sb.value);
+            sessionStorage.setItem('vitribatdau', svidau.innerHTML);
+            sessionStorage.setItem('diadiemden', sdiemden.innerHTML);
+
+            sessionStorage.setItem('cotim', id);
+            // Lưu trữ dữ liệu lại trước khi chuyển trang -------------------------
+
+
+            var key;
+            if (id == 1) key = document.getElementById('searchTextFieldA').value;
+            else key = document.getElementById('searchTextFieldB').value;
+
+            if (!key) return;
+            for (i = 0; i < key.length; i++) key = key.replace(' ', '%20');
+            window.location.assign("directions-search.html#" + latitude + "@" + longitude + "$" + key);
+        }
+
+        // Wait for Cordova to load
+        document.addEventListener("deviceready", onDeviceReady, false);
+
+        // Cordova is ready
+        function onDeviceReady() {
+            var options = { timeout: 3000 };
+            watchID = navigator.geolocation.watchPosition(onSuccess, onError, options);
+            onChangeDanhMuc();
+        }
+
+        function onSuccess(position) {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            var element = document.getElementById('geolocation');
+            var geocoder = new google.maps.Geocoder();
+            var latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) {
+                        element.innerHTML = 'Bạn đang ở ' + results[1].formatted_address;
+                        address = results[1].formatted_address;
+                    }
+                    else { element.innerHTML = 'Không thể định danh được vị trí của bạn!<br/>Bạn đang ở tọa độ:<br/>Kinh độ: ' + position.coords.longitude + '<br/>Vĩ độ: ' + position.coords.latitude; }
+                }
+                else { }
+            });
+        }
+
+        function onError(error) { }
+
+    </script>
+</head>
+<body onload="onStart()">
+    <div data-role="page" class="type-interior">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>CHỈ ĐƯỜNG</b></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a data-ajax="false" href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+            <div data-role="header" data-theme="a" class="ui-bar">
+                <marquee id="geolocation">Đang xác định vị trí của bạn</marquee>
+            </div>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <div style="overflow-x:hidden;">
+            <div data-role="header" data-theme="d" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+                <div class="ui-block-a" style="width: 80%; padding-top: 4px; padding-left: 5px">
+                    <input id="searchTextFieldA" placeholder="Vị trí bắt đầu" type="search" data-theme="d" name="search-mini" data-mini="true" onfocus="withChange()" onkeypress="withChange()" />
+                </div>
+                <div class="ui-block-b" style="width: 20%;">
+                    <div>
+                        <button type="submit" data-theme="b" onclick="findKeywords('1')">Tìm</button></div>
+                </div>
+            </div>
+            <button data-theme="e" onclick="onHoanDoi()">Hoán đỗi vị trí</button>
+            <div data-role="header" data-theme="d" class="ui-bar ui-grid-a" style="padding: 0px; margin-left: -3px;">
+                <div class="ui-block-a" style="width: 80%; padding-top: 4px; padding-left: 5px">
+                    <input id="searchTextFieldB" placeholder="Địa điểm đến" type="search" data-theme="d" name="search-mini" data-mini="true" onfocus="withChange()" onkeypress="withChange()" />
+                </div>
+                <div class="ui-block-b" style="width: 20%;">
+                    <div>
+                        <button type="submit" data-theme="b" onclick="findKeywords('2')">Tìm</button></div>
+                </div>
+            </div>
+            <br />
+            <div style="height: 30px; margin-left: 10px;">
+                <div style="width: 105px; float: left;"><b>Vị trí bắt đầu:</b></div>
+                <div style="width: 30px; float: left; margin-top: -12px;"><a data-role="button" data-icon="star" data-theme="f" data-iconpos="notext" onclick="getViTriHienTai('vitribatdau','searchTextFieldA')"></a></div>
+                <div style="" id="vitribatdau">Vui lòng nhập ở trên</div>
+            </div>
+            <br />
+            <div style="height: 20px; margin-left: 10px; width: 100%;">
+                <div style="width: 105px; float: left;"><b>Địa điểm đến:</b></div>
+                <div style="width: 30px; float: left; margin-top: -12px;"><a data-role="button" data-icon="star" data-theme="f" data-iconpos="notext" onclick="getViTriHienTai('diadiemden','searchTextFieldB')"></a></div>
+                <div style="" id="diadiemden">Vui lòng nhập ở trên</div>
+            </div>
+            <br />
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="margin-left: 20px; width: 100%;">
+                <legend><i>Phương tiện:</i></legend>
+                <input type="radio" name="radio-choice-a" id="radio-choice-a" value="driving" />
+                <label for="radio-choice-a">Xe 4 bánh</label>
+                <input type="radio" name="radio-choice-a" id="radio-choice-b" value="walking" checked="checked" />
+                <label for="radio-choice-b">&nbsp;&nbsp;&nbsp;&nbsp;Đi bộ&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <input type="radio" name="radio-choice-a" id="radio-choice-c" value="bicycling" />
+                <label for="radio-choice-c">&nbsp;&nbsp;&nbsp;Xe đạp&nbsp;&nbsp;&nbsp;</label>
+            </fieldset>
+            <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true" style="margin-left: 20px; margin-top: 10px; margin-bottom: 20px;">
+                <legend><i>Đơn vị tính:</i></legend>
+                <input type="radio" name="radio-choice-b" id="radio-choice-d" value="imperial" />
+                <label for="radio-choice-d">&nbsp;&nbsp;Tính theo dặm&nbsp;&nbsp;</label>
+                <input type="radio" name="radio-choice-b" id="radio-choice-e" value="metric" checked="checked" />
+                <label for="radio-choice-e">&nbsp;&nbsp;&nbsp;Tính theo mét&nbsp;&nbsp;&nbsp;</label>
+            </fieldset>
+            <button data-theme="f" onclick="chiDuong()">Chỉ đường</button>
+            <div id="map-canvas" style="visibility: hidden;"></div>
+        </div>
+        <!-- End Content -->
+
+        <script>
+            function initializeA() {
+                var mapOptions = { center: new google.maps.LatLng(latitude, longitude), zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP };
+                var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+                var inputA = document.getElementById('searchTextFieldA');
+                var autocomplete = new google.maps.places.Autocomplete(inputA);
+
+                autocomplete.bindTo('bounds', map);
+
+                google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                    inputA.className = '';
+                    var place = autocomplete.getPlace();
+                    if (!place.geometry) { // Inform the user that the place was not found and return.
+                        inputA.className = 'notfound';
+                        return;
+                    }
+                    else {
+                        $('#searchTextFieldA').addClass('ui-input-text ui-body-d');
+                        var nameA = document.getElementById('vitribatdau');
+                        nameA.innerHTML = place.name;
+                    }
+                });
+            }
+
+            function initializeB() {
+                var mapOptions = { center: new google.maps.LatLng(latitude, longitude), zoom: 15, mapTypeId: google.maps.MapTypeId.ROADMAP };
+                var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+                var inputB = document.getElementById('searchTextFieldB');
+                var autocomplete = new google.maps.places.Autocomplete(inputB);
+
+                autocomplete.bindTo('bounds', map);
+
+                google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                    inputB.className = '';
+                    var place = autocomplete.getPlace();
+                    if (!place.geometry) { // Inform the user that the place was not found and return.
+                        inputB.className = 'notfound';
+                        return;
+                    }
+                    else {
+                        $('#searchTextFieldB').addClass('ui-input-text ui-body-d');
+                        var nameB = document.getElementById('diadiemden');
+                        nameB.innerHTML = place.name;
+                    }
+                });
+            }
+            google.maps.event.addDomListener(window, 'load', initializeA);
+            google.maps.event.addDomListener(window, 'load', initializeB);
+
+            function withChange() {
+                $('.pac-container').width('10000px');
+                $('.pac-container').css("margin-left", "-33px");
+            }
+            function onHoanDoi() {
+                var inputA = document.getElementById('searchTextFieldA');
+                var inputB = document.getElementById('searchTextFieldB');
+                var temp = inputA.value;
+                inputA.value = inputB.value;
+                inputB.value = temp;
+                var nameA = document.getElementById('vitribatdau');
+                var nameB = document.getElementById('diadiemden');
+                temp = nameA.innerHTML;
+                nameA.innerHTML = nameB.innerHTML;
+                nameB.innerHTML = temp;
+            }
+            function getViTriHienTai(id, name) {
+                var input = document.getElementById(id);
+                var search = document.getElementById(name);
+
+                input.innerHTML = address.substr(0, address.indexOf(','));
+
+                if (address == 'Chưa định danh được...') { search.value = ''; input.innerHTML = 'Chưa định danh được'; }
+                else search.value = address;
+            }
+        </script>
+        <style>
+            .pac-container:after {
+                content: '';
+            }
+        </style>
+    </div>
+</body>
+</html>

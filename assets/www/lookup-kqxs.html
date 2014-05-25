@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả xổ số</title>
+
+    <!-- jQuery references -->
+    <link href="css/themes/default/jquery.mobile-1.2.0.min.css" rel="stylesheet" />
+    <link href="css/jqm-docs.css" rel="stylesheet" />
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+
+    <!-- Wikilookup references -->
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <script type="text/javascript" src="js/index.js"></script>
+
+    <!-- PhoneGap references -->
+    <script type="text/javascript" src="cordova-2.5.0.js"></script>
+</head>
+<body>
+    <div data-role="page" class="type-interior" style="overflow: hidden;">
+        <!-- Start Header -->
+        <div data-role="header" data-theme="f" class="ntcHeader" data-position="fixed">
+            <h1 style="text-transform: capitalize;"><b>KẾT QUẢ XỔ SÔ</b></h1>
+            <a href="start.html" data-ajax="false" data-icon="home" data-iconpos="notext" data-direction="reverse">Home</a>
+            <a href="about.html" data-icon="info" data-iconpos="notext" data-transition="slideup">About</a>
+        </div>
+        <!-- End Header -->
+
+        <!-- Start Content -->
+        <select name="mien" id="mien" data-native-menu="false" data-theme="e">
+            <option>Chọn miền</option>
+            <option value="mienbac">Miền Bắc</option>
+            <option value="mientrung">Miền Trung</option>
+            <option value="miennam">Miền Nam</option>
+        </select>
+        <select name="tinh" id="tinh" data-native-menu="false" data-theme="e">
+            <option>Chọn tỉnh</option>
+        </select>
+        <select name="ngay" id="ngay" data-native-menu="false" data-theme="e">
+            <option>Chọn ngày xổ số</option>
+        </select>
+
+        <div id="kq" style="display: none ;">
+            <div data-role="header" data-theme="b">
+                <h1 id="titlekq" style="margin-left:-20px;margin-right:-20px;">Trúng rồi</h1>
+            </div>
+            <div class="ui-body ui-body-c">
+                <div id="valuekq">Bạn đã trúng gió</div>
+            </div>
+        </div>
+
+
+        <script type="text/javascript">
+            // Tạo dữ liệu cho miền Bắc
+            function createDataMienBac() {
+                var linkMienBac = new Array();
+                var tinhMienBac = new Array();
+
+                linkMienBac[0] = "http://xskt.com.vn/rss-feed/mien-bac-xsmb.rss";
+                tinhMienBac[0] = "Xổ số miền Bắc";
+
+                linkMienBac[1] = "http://xskt.com.vn/rss-feed/dien-toan-123-xsdt123.rss";
+                tinhMienBac[1] = "Xổ số Điện toán 123";
+
+                linkMienBac[2] = "http://xskt.com.vn/rss-feed/dien-toan-6x36-xsdt6x36.rss";
+                tinhMienBac[2] = "Xổ số Điện toán 6x36";
+
+                linkMienBac[3] = "http://xskt.com.vn/rss-feed/than-tai-4-xstt4.rss";
+                tinhMienBac[3] = "Xổ số Thần tài 4";
+
+                var result = new Array();
+                result[0] = linkMienBac;
+                result[1] = tinhMienBac;
+
+                return result;
+            }
+
+            // Tạo dữ liệu cho miền Trung
+            function createDataMienTrung() {
+                var tinhMienTrung = new Array();
+                var linkMienTrung = new Array();
+
+                linkMienTrung[0] = "http://xskt.com.vn/rss-feed/mien-trung-xsmt.rss";
+                tinhMienTrung[0] = "Xổ số Miền Trung";
+
+                linkMienTrung[1] = "http://xskt.com.vn/rss-feed/quang-ngai-xsqng.rss";
+                tinhMienTrung[1] = "Quảng Ngãi";
+                
+                linkMienTrung[2] = "http://xskt.com.vn/rss-feed/phu-yen-xspy.rss";
+                tinhMienTrung[2] = "Phú Yên";
+                
+                linkMienTrung[3] = "http://xskt.com.vn/rss-feed/dac-lac-xsdlk.rss";
+                tinhMienTrung[3] = "Đắc Lắc";
+                
+                linkMienTrung[4] = "http://xskt.com.vn/rss-feed/dac-nong-xsdno.rss";
+                tinhMienTrung[4] = "Đắc Nông";
+
+                linkMienTrung[5] = "http://xskt.com.vn/rss-feed/binh-dinh-xsbdi.rss";
+                tinhMienTrung[5] = "Bình Định";
+
+                linkMienTrung[6] = "http://xskt.com.vn/rss-feed/thua-thien-hue-xstth.rss";
+                tinhMienTrung[6] = "Thừa Thiên Huế";
+
+                linkMienTrung[7] = "http://xskt.com.vn/rss-feed/quang-tri-xsqt.rss";
+                tinhMienTrung[7] = "Quảng Trị";
+
+                linkMienTrung[8] = "http://xskt.com.vn/rss-feed/quang-nam-xsqnm.rss";
+                tinhMienTrung[8] = "Quảng Nam";
+
+                linkMienTrung[9] = "http://xskt.com.vn/rss-feed/ninh-thuan-xsnt.rss";
+                tinhMienTrung[9] = "Ninh Thuận";
+
+                linkMienTrung[10] = "http://xskt.com.vn/rss-feed/kon-tum-xskt.rss";
+                tinhMienTrung[10] = "Kom Tum";
+
+                linkMienTrung[11] = "http://xskt.com.vn/rss-feed/khanh-hoa-xskh.rss";
+                tinhMienTrung[11] = "Khánh Hòa";
+
+                linkMienTrung[12] = "http://xskt.com.vn/rss-feed/gia-lai-xsgl.rss";
+                tinhMienTrung[12] = "Gia Lai";
+
+                linkMienTrung[13] = "http://xskt.com.vn/rss-feed/dac-nong-xsdno.rss";
+                tinhMienTrung[13] = "Đắc Nông";
+
+                linkMienTrung[14] = "http://xskt.com.vn/rss-feed/da-nang-xsdng.rss";
+                tinhMienTrung[14] = "Đà Nẳng";
+
+                var result = new Array();
+                result[0] = linkMienTrung;
+                result[1] = tinhMienTrung;
+
+                return result;
+            }
+
+            // Tạo dữ liệu cho miền Nam
+            function createDataMienNam(linkMienNam, tinhMienNam) {
+                var linkMienNam = new Array();
+                var tinhMienNam = new Array();
+
+                linkMienNam[0] = "http://xskt.com.vn/rss-feed/mien-nam-xsmn.rss";
+                tinhMienNam[0] = "Xổ số Miền Nam";
+
+                linkMienNam[1] = "http://xskt.com.vn/rss-feed/vung-tau-xsvt.rss";
+                tinhMienNam[1] = "Vũng Tàu";
+                
+                linkMienNam[2] = "http://xskt.com.vn/rss-feed/vinh-long-xsvl.rss";
+                tinhMienNam[2] = "Vĩnh Long";
+                
+                linkMienNam[3] = "http://xskt.com.vn/rss-feed/tra-vinh-xstv.rss";
+                tinhMienNam[3] = "Trà Vinh";
+                
+                linkMienNam[4] = "http://xskt.com.vn/rss-feed/tay-ninh-xstn.rss";
+                tinhMienNam[4] = "Tây Ninh";
+                
+                linkMienNam[5] = "http://xskt.com.vn/rss-feed/tien-giang-xstg.rss";
+                tinhMienNam[5] = "Tiền Giang";
+
+                linkMienNam[6] = "http://xskt.com.vn/rss-feed/dong-thap-xsdt.rss";
+                tinhMienNam[6] = "Đồng Tháp";
+
+                linkMienNam[7] = "http://xskt.com.vn/rss-feed/an-giang-xsag.rss";
+                tinhMienNam[7] = "An Giang";
+
+                linkMienNam[8] = "http://xskt.com.vn/rss-feed/binh-duong-xsbd.rss";
+                tinhMienNam[8] = "Bình Dương";
+
+                linkMienNam[9] = "http://xskt.com.vn/rss-feed/bac-lieu-xsbl.rss";
+                tinhMienNam[9] = "Bạc Liêu";
+
+                linkMienNam[10] = "http://xskt.com.vn/rss-feed/binh-phuoc-xsbp.rss";
+                tinhMienNam[10] = "Bình Phước";
+
+                linkMienNam[11] = "http://xskt.com.vn/rss-feed/soc-trang-xsst.rss";
+                tinhMienNam[11] = "Sóc Trăng";
+
+                linkMienNam[12] = "http://xskt.com.vn/rss-feed/lam-dong-xsld.rss";
+                tinhMienNam[12] = "Lâm Đồng";
+
+                linkMienNam[13] = "http://xskt.com.vn/rss-feed/long-an-xsla.rss";
+                tinhMienNam[13] = "Long An";
+
+                linkMienNam[14] = "http://xskt.com.vn/rss-feed/kien-giang-xskg.rss";
+                tinhMienNam[14] = "Kiên Giang";
+
+                linkMienNam[15] = "http://xskt.com.vn/rss-feed/hau-giang-xshg.rss";
+                tinhMienNam[15] = "Hậu Giang";
+
+                linkMienNam[16] = "http://xskt.com.vn/rss-feed/dong-nai-xsdn.rss";
+                tinhMienNam[16] = "Đồng Nai";
+
+                linkMienNam[17] = "http://xskt.com.vn/rss-feed/ca-mau-xscm.rss";
+                tinhMienNam[17] = "Cà Mau";
+
+                linkMienNam[18] = "http://xskt.com.vn/rss-feed/can-tho-xsct.rss";
+                tinhMienNam[18] = "Cần Thơ";
+
+                linkMienNam[19] = "http://xskt.com.vn/rss-feed/ben-tre-xsbt.rss";
+                tinhMienNam[19] = "Bến Tre";
+
+                linkMienNam[20] = "http://xskt.com.vn/rss-feed/binh-thuan-xsbth.rss";
+                tinhMienNam[20] = "Bình Thuận";
+
+                linkMienNam[21] = "http://xskt.com.vn/rss-feed/tp-hcm-xshcm.rss";
+                tinhMienNam[21] = "Hồ Chí Minh";
+
+                var result = new Array();
+                result[0] = linkMienNam;
+                result[1] = tinhMienNam;
+
+                return result;
+            }
+
+            // Tách ngày từ link
+            function getDateFromLink(link) {
+                var result = "";
+                var strNew = link;
+                while (strNew != '') {
+                    if (strNew == result) break;
+                    result = strNew;
+                    strNew = strNew.substring(strNew.indexOf('/') + 1);
+                }
+
+                result = result.substr(0, result.indexOf('.'));
+                var day = result.substr(0, result.indexOf('-'));
+                result = result.substr(result.indexOf('-') + 1);
+                var mouth = result.substr(0, result.indexOf('-'));
+                var year = result.substr(result.indexOf('-') + 1);
+
+                return year + '-' + mouth + '-' + day;
+            }
+        </script>
+
+        <script type="text/javascript">
+            var db = window.openDatabase("Wikilookup", "1.0", "Chu Nguyen Wikilookup", 500000);
+            var sqlStr = "Unknown query string";
+            var mien, link, tinh, ngay, ketqua;
+
+            db.transaction(createTableKQXS, errorCB, successCB);
+
+            // Thêm tỉnh theo từng miền -------------------------------------------------------------------------------------------------------------------------KQXS001
+            $("#mien").bind("change", function (event, ui) {
+                mien = $("#mien").val();
+                $("#tinh option").remove();
+                $('#tinh').append('<option>Chọn tỉnh</option>');
+                $("#tinh").selectmenu('refresh');           // làm mới danh sách tỉnh
+
+                $("#ngay option").remove();
+                $('#ngay').append('<option>Chọn ngày xổ số</option>');
+                $("#ngay").selectmenu('refresh');           // làm mới danh sách ngày
+                if ($("#mien").val() == "mienbac") {
+                    var dataMienBac = createDataMienBac();
+                    var linkMienBac = dataMienBac[0];
+                    var tinhMienBac = dataMienBac[1];
+
+                    for (var i = 0; i < linkMienBac.length; i++) {
+                        $('#tinh').append('<option value="' + linkMienBac[i] + '">' + tinhMienBac[i] + '</option>');
+                    }
+                }
+                if ($("#mien").val() == "mientrung") {
+                    var dataMienTrung = createDataMienTrung();
+                    var linkMienTrung = dataMienTrung[0];
+                    var tinhMienTrung = dataMienTrung[1];
+
+                    for (var i = 0; i < linkMienTrung.length; i++) {
+                        $('#tinh').append('<option value="' + linkMienTrung[i] + '">' + tinhMienTrung[i] + '</option>');
+                    }
+                }
+                if ($("#mien").val() == "miennam") {
+                    var dataMienNam = createDataMienNam();
+                    var linkMienNam = dataMienNam[0];
+                    var tinhMienNam = dataMienNam[1];
+
+                    for (var i = 0; i < linkMienNam.length; i++) {
+                        $('#tinh').append('<option value="' + linkMienNam[i] + '">' + tinhMienNam[i] + '</option>');
+                    }
+                }
+
+                $("#tinh").selectmenu('refresh');           // làm mới danh sách tỉnh
+                $("#ngay").selectmenu('refresh');           // làm mới danh sách ngày
+            });
+            // --------------------------------------------------------------------------------------------------------------------------------------------------KQXS001
+
+            // Tra cứu kết quả theo tỉnh ------------------------------------------------------------------------------------------------------------------------KQXS002
+            $("#tinh").bind("change", function (event, ui) {
+                link = $("#tinh").val();
+                tinh = $("#tinh option[value='" + link + "']").text();
+
+                $("#ngay option").remove();
+                $('#ngay').append('<option>Chọn ngày xổ số</option>');
+                $("#ngay").selectmenu('refresh');           // làm mới danh sách ngày
+
+                // Wait for Cordova to load
+                document.addEventListener("deviceready", onDeviceReady, false);
+
+                // Cordova is ready
+                function onDeviceReady() {
+                    // 1. Lấy thông tin lưu xuống database rồi lại truy vấn ngày nếu có kết nối internet
+                    if (!(navigator.network.connection.type == Connection.NONE || navigator.network.connection.type == Connection.UNKNOWN)) {
+                        $.get(link, function (data) {
+                            var $xml = $(data);
+                            var listSqlStr = new Array();
+                            var count = 0;
+
+                            // Lấy các item trong RSS kết quả xổ số
+                            $xml.find("item").each(function () {
+                                var $this = $(this),
+                                    item = {
+                                        description: $this.find("description").text(),
+                                        link: $this.find("link").text()
+                                    }
+                                var ngay = getDateFromLink(item.link);
+                                ketqua = item.description;
+                                listSqlStr[listSqlStr.length] = 'INSERT INTO KETQUAXOSO (mien, tinh, ngay, ketqua) VALUES ("' + mien + '","' + tinh + '","' + ngay + '","' + ketqua + '")';
+                                db.transaction(function (tx) { tx.executeSql(listSqlStr[count++]); db.transaction(getListDayKQXS, errorCB); }, errorCB, successCB);
+                            });
+                        });
+                        return;
+                    }
+
+                    // 2. Nếu không có kết nối internet thì truy vấn lấy kết quả thôi
+                    db.transaction(getListDayKQXS, errorCB);
+                }
+            });
+            // --------------------------------------------------------------------------------------------------------------------------------------------------KQXS002
+
+            // Lấy kết quả theo ngày ----------------------------------------------------------------------------------------------------------------------------KQXS003
+            $("#ngay").bind("change", function (event, ui) {
+                ngay = $("#ngay").val();
+                db.transaction(getListKetQuaKQXS, errorCB);
+            });
+            // --------------------------------------------------------------------------------------------------------------------------------------------------KQXS003
+
+            // Tạo bảng kết quả xổ số
+            function createTableKQXS(tx) {
+                sqlStr = 'CREATE TABLE IF NOT EXISTS KETQUAXOSO (mien, tinh, ngay, ketqua, PRIMARY KEY(tinh, ngay))';
+                tx.executeSql(sqlStr);
+            }
+
+            // Lấy kết quả là danh sách ngày theo tỉnh
+            function getListDayKQXS(tx) {
+                sqlStr = "SELECT ngay FROM KETQUAXOSO WHERE tinh = '" + tinh + "'";
+                tx.executeSql(sqlStr, [], getListDayKQXSSuccess, errorCB);
+            }
+
+            // Trả kết quả danh sách ngày theo tỉnh và list
+            function getListDayKQXSSuccess(tx, results) {
+                var length = results.rows.length;
+                $("#ngay option").remove();
+                $('#ngay').append('<option>Chọn ngày xổ số</option>');
+
+                // Đưa vào danh sách ngày
+                for (var i = length - 1; i >= 0; i--) {
+                    var data = results.rows.item(i).ngay;
+                    var dateObj = new Date(data);
+                    $('#ngay').append('<option value="' + data + '">' + data + "/" + dateObj.toDateString() + '</option>');
+                }
+
+                // Làm mới danh mục ngày
+                $("#ngay").selectmenu('refresh');
+            }
+
+            // Lấy kết quả trả về theo tỉnh, ngày
+            function getListKetQuaKQXS(tx) {
+                sqlStr = "SELECT ketqua FROM KETQUAXOSO WHERE tinh = '" + tinh + "' and ngay = '" + ngay + "'";
+                tx.executeSql(sqlStr, [], getListKetQuaKQXSSuccess, errorCB);
+                $("#kq").show();
+                document.getElementById("titlekq").innerHTML = "<b>" + tinh + " " + ngay + "</b>";
+            }
+
+            // Trả kết quả danh sách ngày theo tỉnh và list
+            function getListKetQuaKQXSSuccess(tx, results) {
+                var data = results.rows.item(0).ketqua;
+                var x = data;
+                x = x.replace('ĐB: ', '<div>Giải đặc biệt: ');
+                x = x.replace('1: ', '</div><div>Giải nhất: ');
+                x = x.replace('2: ', '</div><div>Giải nhì: ');
+                x = x.replace('3: ', '</div><div>Giải ba: ');
+                x = x.replace('4: ', '</div><div>Giải tư: ');
+                x = x.replace('5: ', '</div><div>Giải năm: ');
+                x = x.replace('6: ', '</div><div>Giải sáu: ');
+                x = x.replace('7: ', '</div><div>Giải bảy: ');
+                x = x.replace('8: ', '</div><div>Giải tám: ');
+                data = x + '</div>';
+                document.getElementById("valuekq").innerHTML = data;
+            }
+
+            // Transaction error callback
+            function errorCB(err) {
+                console.log("ChuwxNTC - Error processing SQL: " + err);
+            }
+
+            // Transaction success callback
+            function successCB() {
+                console.log("ChuwxNTC - SQLite success");
+            }
+        </script>
+        <!-- End Content -->
+
+        <!-- Start Footer -->
+        <div data-role="footer" data-position="fixed">
+            <div data-role="navbar" data-iconpos="right">
+                <ul>
+                    <li><a data-ajax="false" href="index.html" data-transition="none" data-icon="grid">Địa điểm</a></li>
+                    <li><a data-transition="none" data-icon="search" class="ui-btn-active ui-state-persist">Tra cứu</a></li>
+                    <li><a data-ajax="false" href="settings.html" data-transition="none" data-icon="gear">Cài đặt</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- End Footer -->
+    </div>
+</body>
+</html>
